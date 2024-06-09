@@ -32,7 +32,7 @@ DriveNumber:        db 0x80
 ReservedByte:       db 0x00
 Signature:          db 0x29
 VolumeID:           dd 0xFFFFFFFF
-VolumeLabel:        db "OSMIUM BOOT"
+VolumeLabel:        db "RIZZOS BOOT"
 SystemID:           db "FAT32   "
 ;--------------------------------------------------
 ; FAT32 Init SECTION

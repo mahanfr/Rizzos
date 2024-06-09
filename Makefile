@@ -6,7 +6,7 @@ BUILD_DIR = build
 BOOTLOADER = boot.bin
 SRC_DIR = src
 KERNEL = kernel.bin
-IMG= osmium.img
+IMG= rizzos.img
 
 .PHONY: bootloader kernel image always clean
 default: image
