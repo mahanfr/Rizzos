@@ -1,41 +1,29 @@
-ASM = nasm
-CC = gcc
 
-BOOTLOADER_SRC = ./bootloader/bios/boot.asm
-BUILD_DIR = build
-BOOTLOADER = boot.bin
-SRC_DIR = src
-KERNEL = kernel.bin
-IMG= rizzos.img
+PARTED = /usr/sbin/parted
+BUILD_DIR = ./build
+TEMP_PART = $(BUILD_DIR)/part.img
+TARGET = $(BUILD_DIR)/uefi.img
 
-.PHONY: bootloader kernel image always clean
-default: image
-#
-# Bootloader
-#
-bootloader: $(BUILD_DIR)/$(BOOTLOADER)
+bootloader: image
 
-$(BUILD_DIR)/$(BOOTLOADER): always
-	$(ASM) -fbin $(BOOTLOADER_SRC) -o $@ 
+partitions: disk-image
+	$(PARTED) $(TARGET) -s -a minimal mklabel gpt
+	$(PARTED) $(TARGET) -s -a minimal mkpart EFI FAT16 2048s 93716s
+	$(PARTED) $(TARGET) -s -a minimal toggle 1 boot
 
-#
-# Kernel
-#
-kernal: $(BUILD_DIR)/$(KERNEL)
+temp-partitions: partitions
+	dd if=/dev/zero of=$(TEMP_PART) bs=512 count=91669
+	mformat -i $(TEMP_PART) -h 32 -t 32 -n 64 -c 1
 
-$(BUILD_DIR)/$(KERNEL): always
-	$(ASM) -fbin $(SRC_DIR)/kernel.asm -o $@
+CP-bootlaoder: temp-partitions
+	$(MAKE) -C ./bootloader/uefi
+	mcopy -i $(TEMP_PART) ./bootloader/uefi/build/main.efi ::
 
-#
-# Bootable Image
-#
-image: $(BUILD_DIR)/$(IMG)
+image: CP-bootlaoder
+	dd if=$(TEMP_PART) of=$(TARGET) bs=512 count=91669 seek=2048 conv=notrunc
 
-$(BUILD_DIR)/$(IMG): bootloader kernal
-	dd if=/dev/zero of=$@ bs=4096 count=10000
-	/sbin/mkfs.fat -F 32 -n "NBOS" $@
-	dd if=$(BUILD_DIR)/$(BOOTLOADER) of=$@ conv=notrunc
-	mcopy -i $@ $(BUILD_DIR)/$(KERNEL) "::kernel.bin"
+disk-image:
+	dd if=/dev/zero of=$(TARGET) bs=512 count=93750
 
 always:
 	mkdir -p $(BUILD_DIR)
