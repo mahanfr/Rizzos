@@ -1,35 +1,51 @@
+CC = gcc
+LD = ld
+MKFS = /sbin/mkfs.vfat
 
-PARTED = /usr/sbin/parted
+LDS = kernel.ld
+
+CFLAGS = -ffreestanding -fshort-wchar
+LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
+
+SRC_DIR = ./src
 BUILD_DIR = ./build
-TEMP_PART = $(BUILD_DIR)/part.img
-TARGET = $(BUILD_DIR)/uefi.img
+TARGET = $(BUILD_DIR)/rizzos.img
+KERNEL = $(BUILD_DIR)/kernel.elf
 
-bootloader: image
+# finding files by extention
+rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-partitions: disk-image
-	$(PARTED) $(TARGET) -s -a minimal mklabel gpt
-	$(PARTED) $(TARGET) -s -a minimal mkpart EFI FAT16 2048s 93716s
-	$(PARTED) $(TARGET) -s -a minimal toggle 1 boot
+SRC = $(call rwildcard,$(SRC_DIR),*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRC))
+DIRS = $(wildcard $(SRC_DIR)/*)
 
-temp-partitions: partitions
-	dd if=/dev/zero of=$(TEMP_PART) bs=512 count=91669
-	mformat -i $(TEMP_PART) -h 32 -t 32 -n 64 -c 1
-	mmd -i $(TEMP_PART) ::/EFI
-	mmd -i $(TEMP_PART) ::/EFI/BOOT
+all: target-img
 
-CP-bootlaoder: temp-partitions
+bootloader: always
 	$(MAKE) -C ./bootloader
-	mcopy -i $(TEMP_PART) ./bootloader/build/main.efi ::/EFI/BOOT
-	mcopy -i $(TEMP_PART) ./bootloader/startup.nsh ::
 
-image: CP-bootlaoder
-	dd if=$(TEMP_PART) of=$(TARGET) bs=512 count=91669 seek=2048 conv=notrunc
+kernel: always $(OBJS) link
 
-disk-image:
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@ echo CC $^
+	$(CC) $(CFLAGS) -c $^ -o $@
+
+link:
+	@ echo Linking object files..
+	$(LD) $(LDFLAGS) -o $(KERNEL) $(OBJS)
+
+target-img: bootloader kernel
 	dd if=/dev/zero of=$(TARGET) bs=512 count=93750
+	$(MKFS) $(TARGET)
+	mmd -i $(TARGET) ::/EFI
+	mmd -i $(TARGET) ::/EFI/BOOT
+	mcopy -i $(TARGET) ./bootloader/build/main.efi ::/EFI/BOOT
+	mcopy -i $(TARGET) ./bootloader/startup.nsh ::
+	mcopy -i $(TARGET) $(KERNEL) ::
+	@ echo DONE. CREATED $(TARGET)
 
 always:
 	mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -rf $(BUILD_DIR)/* 
+	rm -rf $(BUILD_DIR)/*
