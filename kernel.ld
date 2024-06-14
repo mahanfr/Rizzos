@@ -3,19 +3,20 @@ ENTRY(_start)
 
 SECTIONS
 {
-    .text : ALIGN(0x1000)
+    . = 2M;
+    .text : ALIGN(4K)
     {
         *(.text)
     }
-    .data : ALIGN(0x1000)
+    .data : ALIGN(4K)
     {
         *(.data)
     }
-    .rodata : ALIGN(0x1000)
+    .rodata : ALIGN(4K)
     {
         *(.rodata)
     }
-    .bss : ALIGN(0x1000)
+    .bss : ALIGN(4K)
     {
         *(.COMMON)
         *(.bss)
