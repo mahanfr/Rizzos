@@ -3,6 +3,8 @@
 #include "gnu-efi/inc/efiprot.h"
 #include "gnu-efi/inc/x86_64/efibind.h"
 #include <elf.h>
+#include "../common/types.h"
+#include "../common/graphics.h"
 
 #ifndef LOG
 #define LOG(fmt, ...) AsciiPrint(fmt, __VA_ARGS__)
@@ -12,11 +14,12 @@
 #define TRACE(status)   LOG("Status: '%r', Function: '%a', File: '%a', Line: '%d'\r\n", status, __FUNCTION__, __FILE__, __LINE__)
 #endif
 
-typedef unsigned long long Size_t;
 
 extern EFI_BOOT_SERVICES *gBS;
 
-void InitializeGOP() {
+
+FrameBuffer frameBuffer;
+FrameBuffer* InitializeGOP() {
     EFI_STATUS Status;
     EFI_GUID gopGUID = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
     EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
@@ -24,11 +27,17 @@ void InitializeGOP() {
     Status = uefi_call_wrapper(BS->LocateProtocol, 3, &gopGUID, NULL, (void**) &gop);
     if (EFI_ERROR(Status)) {
         TRACE(Status);
-        return;
+        return NULL;
     } else {
         Print(L"GOP Located sucessfully!\n\r");
     }
+    frameBuffer.BaseAddress = (void*) gop->Mode->FrameBufferBase;
+    frameBuffer.BufferSize = gop->Mode->FrameBufferSize;
+    frameBuffer.Width = gop->Mode->Info->HorizontalResolution;
+    frameBuffer.Height = gop->Mode->Info->VerticalResolution;
+    frameBuffer.PixelPerScanLine = gop->Mode->Info->PixelsPerScanLine;
 
+    return &frameBuffer;
 }
 
 EFI_FILE* LoadFile(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
@@ -130,7 +139,6 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
         Print(L"Kernel File Loaded Successfuly \n\r");
     }
 
-    // Elf64_Ehdr* header = ReadElfHeader(kernel);
     Elf64_Ehdr* header;
     EFI_STATUS Status;
 
@@ -177,7 +185,13 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 
     int (*KernelStart)() = ((__attribute__((sysv_abi)) int (*)() ) header->e_entry);
 
-    InitializeGOP();
+    FrameBuffer *new_FrameBuf = InitializeGOP();
+
+    Print(L"Base: 0x%x\n\r", new_FrameBuf->BaseAddress);
+    Print(L"Size: 0x%x\n\r", new_FrameBuf->BufferSize);
+    Print(L"Width: %d\n\r", new_FrameBuf->Width);
+    Print(L"Height: %d\n\r", new_FrameBuf->Height);
+    Print(L"PixelPerScanLine: %d\n\r", new_FrameBuf->PixelPerScanLine);
 
     Print(L"%d\r\n", KernelStart());
     return EFI_SUCCESS;
