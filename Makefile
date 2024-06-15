@@ -11,6 +11,7 @@ SRC_DIR = ./src
 BUILD_DIR = ./build
 TARGET = $(BUILD_DIR)/rizzos.img
 KERNEL = $(BUILD_DIR)/kernel.elf
+ASSETS = ./assets/zap-light16.psf
 
 # finding files by extention
 rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
@@ -42,6 +43,7 @@ target-img: bootloader kernel
 	mcopy -i $(TARGET) ./bootloader/build/main.efi ::/EFI/BOOT
 	mcopy -i $(TARGET) ./bootloader/startup.nsh ::
 	mcopy -i $(TARGET) $(KERNEL) ::
+	mcopy -i $(TARGET) $(ASSETS) ::
 	@ echo DONE. CREATED $(TARGET)
 
 always:

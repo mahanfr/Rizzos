@@ -1,10 +1,13 @@
 #include "gnu-efi/inc/efi.h"
+#include "gnu-efi/inc/efidef.h"
+#include "gnu-efi/inc/efierr.h"
 #include "gnu-efi/inc/efilib.h"
 #include "gnu-efi/inc/efiprot.h"
 #include "gnu-efi/inc/x86_64/efibind.h"
 #include <elf.h>
 #include "../common/types.h"
 #include "../common/graphics.h"
+#include "../common/fonts.h"
 
 #ifndef LOG
 #define LOG(fmt, ...) AsciiPrint(fmt, __VA_ARGS__)
@@ -65,6 +68,62 @@ EFI_FILE* LoadFile(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EF
         return NULL;
     }
     return LoadedFile;
+}
+
+PSF1_FONT* LoadPSF1Font(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
+    EFI_STATUS Status;
+    EFI_FILE* fontFile = LoadFile(Directory, Path, ImageHandle, SystemTable);
+    if (fontFile == NULL) return NULL;
+
+    PSF1_HEADER* fontHeader;
+    Status = uefi_call_wrapper(BS->AllocatePool, 3, EfiLoaderData, sizeof(PSF1_HEADER), (void**)&fontHeader);
+    if (EFI_ERROR(Status)) {
+        TRACE(Status);
+        return NULL;
+    }
+    UINTN size = sizeof(PSF1_HEADER);
+    Status = uefi_call_wrapper(fontFile->Read, 3, fontFile, &size, fontHeader);
+    if (EFI_ERROR(Status)) {
+        TRACE(Status);
+        return NULL;
+    }
+
+    if(fontHeader->magic[0] != PSF1_MAGIC0 || fontHeader->magic[1] != PSF1_MAGIC1) {
+        return NULL;
+    }
+    UINTN glyphBufferSize = fontHeader->charsize * 256;
+    if (fontHeader->mode == 1) {
+        glyphBufferSize = fontHeader->charsize * 512;
+    }
+
+    void* glyphBuffer;
+    {
+        Status = uefi_call_wrapper(fontFile->SetPosition, 2, fontFile, sizeof(PSF1_HEADER));
+        if (EFI_ERROR(Status)) {
+            TRACE(Status);
+            return NULL;
+        }
+        Status = uefi_call_wrapper(BS->AllocatePool, 3, EfiLoaderData, glyphBufferSize, (void**) &glyphBuffer);
+        if (EFI_ERROR(Status)) {
+            TRACE(Status);
+            return NULL;
+        }
+        Status = uefi_call_wrapper(fontFile->Read, 3, fontFile, &glyphBufferSize, glyphBuffer);
+        if (EFI_ERROR(Status)) {
+            TRACE(Status);
+            return NULL;
+        }
+    }
+
+    PSF1_FONT* font;
+    Status = uefi_call_wrapper(BS->AllocatePool, 3, EfiLoaderData, sizeof(PSF1_FONT), (void**) &font);
+    if (EFI_ERROR(Status)) {
+        TRACE(Status);
+        return NULL;
+    }
+    font->psfHeader = fontHeader;
+    font->glyphBuffer = glyphBuffer;
+    return font;
 }
 
 int MemCmp(const void* aptr, const void* bptr, Size_t n) {
@@ -185,6 +244,13 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 
     void (*KernelStart)(FrameBuffer*) = ((__attribute__((sysv_abi)) void (*)(FrameBuffer*) ) header->e_entry);
     FrameBuffer *new_FrameBuf = InitializeGOP();
+    if (new_FrameBuf == NULL) return EFI_ERROR(24);
+    PSF1_FONT* newFont = LoadPSF1Font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
+    if (newFont == NULL) {
+        Print(L"Font not Found!\n\r");
+    } else {
+        Print(L"Font Found: char size = %d\n\r", newFont->psfHeader->charsize);
+    }
 
     Print(L"Base: 0x%x\n\r", new_FrameBuf->BaseAddress);
     Print(L"Size: 0x%x\n\r", new_FrameBuf->BufferSize);

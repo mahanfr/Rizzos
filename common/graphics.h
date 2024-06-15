@@ -9,7 +9,11 @@ typedef struct {
     unsigned int Width;
     unsigned int Height;
     unsigned int PixelPerScanLine;
-
 } FrameBuffer;
+
+typedef struct {
+    unsigned int x;
+    unsigned int y;
+} Point;
 
 #endif
