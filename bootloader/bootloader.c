@@ -242,7 +242,8 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     }
     Print(L"Kernel Executables Loaded into memory!\n\r");
 
-    void (*KernelStart)(FrameBuffer*) = ((__attribute__((sysv_abi)) void (*)(FrameBuffer*) ) header->e_entry);
+    void (*KernelStart)(FrameBuffer*, PSF1_FONT*) = ((__attribute__((sysv_abi)) void (*)(FrameBuffer*,PSF1_FONT*) ) header->e_entry);
+
     FrameBuffer *new_FrameBuf = InitializeGOP();
     if (new_FrameBuf == NULL) return EFI_ERROR(24);
     PSF1_FONT* newFont = LoadPSF1Font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
@@ -252,12 +253,6 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
         Print(L"Font Found: char size = %d\n\r", newFont->psfHeader->charsize);
     }
 
-    Print(L"Base: 0x%x\n\r", new_FrameBuf->BaseAddress);
-    Print(L"Size: 0x%x\n\r", new_FrameBuf->BufferSize);
-    Print(L"Width: %d\n\r", new_FrameBuf->Width);
-    Print(L"Height: %d\n\r", new_FrameBuf->Height);
-    Print(L"PixelPerScanLine: %d\n\r", new_FrameBuf->PixelPerScanLine);
-
-    KernelStart(new_FrameBuf);
+    KernelStart(new_FrameBuf, newFont);
     return EFI_SUCCESS;
 }
