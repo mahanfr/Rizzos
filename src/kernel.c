@@ -1,4 +1,11 @@
+#include "../common/graphics.h"
 
-int _start() {
-    return 69;
+void _start(FrameBuffer* framebuffer) {
+    for (unsigned int y = 0; y< framebuffer->Height; y += 20){
+        for (unsigned int x = 0; x < framebuffer->Width; x++) {
+            *(unsigned int*)((x * 4) + (y * framebuffer->PixelPerScanLine * 4)
+                    + framebuffer->BaseAddress) = 0xFF00FFFF;
+        }
+    }
+    return;
 }

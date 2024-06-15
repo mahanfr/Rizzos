@@ -183,8 +183,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     }
     Print(L"Kernel Executables Loaded into memory!\n\r");
 
-    int (*KernelStart)() = ((__attribute__((sysv_abi)) int (*)() ) header->e_entry);
-
+    void (*KernelStart)(FrameBuffer*) = ((__attribute__((sysv_abi)) void (*)(FrameBuffer*) ) header->e_entry);
     FrameBuffer *new_FrameBuf = InitializeGOP();
 
     Print(L"Base: 0x%x\n\r", new_FrameBuf->BaseAddress);
@@ -193,6 +192,6 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     Print(L"Height: %d\n\r", new_FrameBuf->Height);
     Print(L"PixelPerScanLine: %d\n\r", new_FrameBuf->PixelPerScanLine);
 
-    Print(L"%d\r\n", KernelStart());
+    KernelStart(new_FrameBuf);
     return EFI_SUCCESS;
 }
