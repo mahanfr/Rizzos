@@ -1,6 +1,6 @@
 #include "gnu-efi/inc/efi.h"
-#include "gnu-efi/inc/efidef.h"
 #include "gnu-efi/inc/efilib.h"
+#include "gnu-efi/inc/efiprot.h"
 #include "gnu-efi/inc/x86_64/efibind.h"
 #include <elf.h>
 
@@ -15,6 +15,21 @@
 typedef unsigned long long Size_t;
 
 extern EFI_BOOT_SERVICES *gBS;
+
+void InitializeGOP() {
+    EFI_STATUS Status;
+    EFI_GUID gopGUID = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+    EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
+
+    Status = uefi_call_wrapper(BS->LocateProtocol, 3, &gopGUID, NULL, (void**) &gop);
+    if (EFI_ERROR(Status)) {
+        TRACE(Status);
+        return;
+    } else {
+        Print(L"GOP Located sucessfully!\n\r");
+    }
+
+}
 
 EFI_FILE* LoadFile(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
     EFI_FILE* LoadedFile;
@@ -137,11 +152,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     } else {
         Print(L"kernel format is bad\r\n");
     }
-    // Status = uefi_call_wrapper(kernel->SetPosition, 2, kernel, header->e_phoff);
-    // if (EFI_ERROR(Status)) {
-    //     TRACE(Status);
-    //     return NULL;
-    // }
+
     Elf64_Phdr* phdrs = ReadElfProgramHeader(kernel, header);
     if (phdrs == NULL) {
         Print(L"Can not read the elf program headers!\n\r");
@@ -165,6 +176,8 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     Print(L"Kernel Executables Loaded into memory!\n\r");
 
     int (*KernelStart)() = ((__attribute__((sysv_abi)) int (*)() ) header->e_entry);
+
+    InitializeGOP();
 
     Print(L"%d\r\n", KernelStart());
     return EFI_SUCCESS;
