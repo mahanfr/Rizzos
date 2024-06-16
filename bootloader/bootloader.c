@@ -1,13 +1,10 @@
 #include "gnu-efi/inc/efi.h"
-#include "gnu-efi/inc/efidef.h"
-#include "gnu-efi/inc/efierr.h"
 #include "gnu-efi/inc/efilib.h"
-#include "gnu-efi/inc/efiprot.h"
-#include "gnu-efi/inc/x86_64/efibind.h"
 #include <elf.h>
 #include "../common/types.h"
 #include "../common/graphics.h"
 #include "../common/fonts.h"
+#include "../common/uefi_data.h"
 
 #ifndef LOG
 #define LOG(fmt, ...) AsciiPrint(fmt, __VA_ARGS__)
@@ -16,10 +13,6 @@
 #ifndef TRACE
 #define TRACE(status)   LOG("Status: '%r', Function: '%a', File: '%a', Line: '%d'\r\n", status, __FUNCTION__, __FILE__, __LINE__)
 #endif
-
-
-extern EFI_BOOT_SERVICES *gBS;
-
 
 FrameBuffer frameBuffer;
 FrameBuffer* InitializeGOP() {
@@ -242,17 +235,21 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     }
     Print(L"Kernel Executables Loaded into memory!\n\r");
 
-    void (*KernelStart)(FrameBuffer*, PSF1_FONT*) = ((__attribute__((sysv_abi)) void (*)(FrameBuffer*,PSF1_FONT*) ) header->e_entry);
+    void (*KernelStart)(UEFIData*) = ((__attribute__((sysv_abi)) void (*)(UEFIData*) ) header->e_entry);
 
     FrameBuffer *new_FrameBuf = InitializeGOP();
     if (new_FrameBuf == NULL) return EFI_ERROR(24);
-    PSF1_FONT* newFont = LoadPSF1Font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
+    PSF1_FONT *newFont = LoadPSF1Font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
     if (newFont == NULL) {
         Print(L"Font not Found!\n\r");
     } else {
         Print(L"Font Found: char size = %d\n\r", newFont->psfHeader->charsize);
     }
 
-    KernelStart(new_FrameBuf, newFont);
+    UEFIData* uefiData;
+    uefiData->frameBuffer = new_FrameBuf;
+    uefiData->consoleFont = newFont;
+
+    KernelStart(uefiData);
     return EFI_SUCCESS;
 }
