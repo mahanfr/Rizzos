@@ -3,6 +3,7 @@
 
 void _start(UEFIData* uefiData) {
     initBasicGraphics(uefiData);
-    print("Hello World From Kernel!\0");
+    print("Hello World From Kernel!\n");
+    print("%d\n%d", 2, 6969420);
     return;
 }

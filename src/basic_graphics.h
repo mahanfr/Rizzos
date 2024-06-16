@@ -4,6 +4,6 @@
 #include "../common/uefi_data.h"
 
 void initBasicGraphics(UEFIData* uefiData);
-void print(char* str);
+void print(char* str, ...);
 
 #endif

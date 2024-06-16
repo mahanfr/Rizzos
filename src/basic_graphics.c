@@ -1,10 +1,17 @@
 #include "../common/graphics.h"
 #include "../common/uefi_data.h"
+#define STB_SPRINTF_IMPLEMENTATION
+#include "../lib/stb_sprintf.h"
 
-Point CursorPosition = {.x= 8, .y= 16};
+#include <stdarg.h>
+#define WHITE 0xFFFFFFFF
+#define DEFAULT_CUR_X 8
+#define DEFAULT_CUR_Y 16
+
+Point CursorPosition = {.x= DEFAULT_CUR_X, .y= DEFAULT_CUR_Y};
 FrameBuffer frameBuffer;
 PSF1_FONT font;
-#define WHITE 0xFFFFFFFF
+int Color = WHITE;
 
 void initBasicGraphics(UEFIData* uefiData) {
     frameBuffer = *uefiData->frameBuffer;
@@ -25,14 +32,32 @@ void putChar(unsigned int color, char chr,
     }
 }
 
-void print(char* str) {
+void print(const char* fmt, ...) {
+    va_list va;
+    char str[512];
+    va_start(va, fmt);
+    stbsp_vsprintf(str, fmt, va);
+    va_end(va);
     char* chr = str;
     while (*chr != 0) {
-        putChar(WHITE, *chr, CursorPosition.x, CursorPosition.y);
-        CursorPosition.x += 8;
+        switch (*chr) {
+            case '\n':
+                CursorPosition.x = DEFAULT_CUR_X;
+                CursorPosition.y += DEFAULT_CUR_Y;
+                break;
+            case '\t':
+                CursorPosition.x += DEFAULT_CUR_X * 4;
+                break;
+            case '\0':
+                break;
+            default:
+                putChar(Color, *chr, CursorPosition.x, CursorPosition.y);
+                CursorPosition.x += DEFAULT_CUR_X;
+                break;
+        }
         if (CursorPosition.x > frameBuffer.Width) {
-            CursorPosition.x = 8;
-            CursorPosition.y += 16;
+            CursorPosition.x = DEFAULT_CUR_X;
+            CursorPosition.y += DEFAULT_CUR_Y;
         }
         chr++;
     }
