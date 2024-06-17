@@ -13,7 +13,7 @@ FrameBuffer frameBuffer;
 PSF1_FONT font;
 int Color = WHITE;
 
-void initBasicGraphics(UEFIData* uefiData) {
+void initBasicGraphics(UEFIBootData* uefiData) {
     frameBuffer = *uefiData->frameBuffer;
     font = *uefiData->consoleFont;
 }

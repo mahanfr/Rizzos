@@ -3,7 +3,7 @@
 
 #include "../common/uefi_data.h"
 
-void initBasicGraphics(UEFIData* uefiData);
+void initBasicGraphics(UEFIBootData* uefiData);
 void print(char* str, ...);
 
 #endif

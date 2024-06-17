@@ -7,6 +7,6 @@
 typedef struct {
     FrameBuffer* frameBuffer;
     PSF1_FONT* consoleFont;
-} UEFIData;
+} UEFIBootData;
 
 #endif

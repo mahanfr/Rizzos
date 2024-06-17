@@ -235,7 +235,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     }
     Print(L"Kernel Executables Loaded into memory!\n\r");
 
-    void (*KernelStart)(UEFIData*) = ((__attribute__((sysv_abi)) void (*)(UEFIData*) ) header->e_entry);
+    void (*KernelStart)(UEFIBootData*) = ((__attribute__((sysv_abi)) void (*)(UEFIBootData*) ) header->e_entry);
 
     FrameBuffer *new_FrameBuf = InitializeGOP();
     if (new_FrameBuf == NULL) return EFI_ERROR(24);
@@ -246,10 +246,10 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
         Print(L"Font Found: char size = %d\n\r", newFont->psfHeader->charsize);
     }
 
-    UEFIData* uefiData;
-    uefiData->frameBuffer = new_FrameBuf;
-    uefiData->consoleFont = newFont;
+    UEFIBootData* uefiBootData;
+    uefiBootData->frameBuffer = new_FrameBuf;
+    uefiBootData->consoleFont = newFont;
 
-    KernelStart(uefiData);
+    KernelStart(uefiBootData);
     return EFI_SUCCESS;
 }
