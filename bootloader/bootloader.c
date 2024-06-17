@@ -1,10 +1,12 @@
 #include "gnu-efi/inc/efi.h"
+#include "gnu-efi/inc/efidef.h"
 #include "gnu-efi/inc/efilib.h"
 #include <elf.h>
 #include "../common/types.h"
 #include "../common/graphics.h"
 #include "../common/fonts.h"
 #include "../common/uefi_data.h"
+#include "gnu-efi/inc/x86_64/efibind.h"
 
 #ifndef LOG
 #define LOG(fmt, ...) AsciiPrint(fmt, __VA_ARGS__)
@@ -235,8 +237,6 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     }
     Print(L"Kernel Executables Loaded into memory!\n\r");
 
-    void (*KernelStart)(UEFIBootData*) = ((__attribute__((sysv_abi)) void (*)(UEFIBootData*) ) header->e_entry);
-
     FrameBuffer *new_FrameBuf = InitializeGOP();
     if (new_FrameBuf == NULL) return EFI_ERROR(24);
     PSF1_FONT *newFont = LoadPSF1Font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
@@ -246,9 +246,34 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
         Print(L"Font Found: char size = %d\n\r", newFont->psfHeader->charsize);
     }
 
+    EFI_MEMORY_DESCRIPTOR* map = NULL;
+    UINTN mapSize, mapKey;
+    UINTN descriptorSize;
+    UINT32 descriptorVersion;
+
+    (void) uefi_call_wrapper(BS->GetMemoryMap, 5, &mapSize, map, &mapKey, &descriptorSize, &descriptorVersion);
+    Status = uefi_call_wrapper(BS->AllocatePool, 3, EfiLoaderData, mapSize, (void**)&map);
+    if (EFI_ERROR(Status)) {
+        TRACE(Status);
+    }
+    Status = uefi_call_wrapper(BS->GetMemoryMap, 5, &mapSize, map, &mapKey, &descriptorSize, &descriptorVersion);
+    if (EFI_ERROR(Status)) {
+        TRACE(Status);
+    }
+
+    void (*KernelStart)(UEFIBootData*) = ((__attribute__((sysv_abi)) void (*)(UEFIBootData*) ) header->e_entry);
+
     UEFIBootData* uefiBootData;
     uefiBootData->frameBuffer = new_FrameBuf;
     uefiBootData->consoleFont = newFont;
+    uefiBootData->mMap = map;
+    uefiBootData->mMapSize = mapSize;
+    uefiBootData->mMapDescSize = descriptorSize;
+
+    Status = uefi_call_wrapper(BS->ExitBootServices, 2, ImageHandle, mapKey);
+    if (EFI_ERROR(Status)) {
+        TRACE(Status);
+    }
 
     KernelStart(uefiBootData);
     return EFI_SUCCESS;
