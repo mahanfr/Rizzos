@@ -40,6 +40,9 @@ void print(const char* fmt, ...) {
     va_end(va);
     char* chr = str;
     while (*chr != 0) {
+        if (CursorPosition.y > frameBuffer.Height) {
+            return;
+        }
         switch (*chr) {
             case '\n':
                 CursorPosition.x = DEFAULT_CUR_X;

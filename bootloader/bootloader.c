@@ -245,19 +245,19 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
         Print(L"Font Found: char size = %d\n\r", newFont->psfHeader->charsize);
     }
 
-    EFI_MEMORY_DESCRIPTOR* map = NULL;
+    UINTN noEntries;
     UINTN mapSize, mapKey;
     UINTN descriptorSize;
     UINT32 descriptorVersion;
 
-    (void) uefi_call_wrapper(BS->GetMemoryMap, 5, &mapSize, map, &mapKey, &descriptorSize, &descriptorVersion);
-    Status = uefi_call_wrapper(BS->AllocatePool, 3, EfiLoaderData, mapSize, (void**)&map);
-    if (EFI_ERROR(Status)) {
-        TRACE(Status);
-    }
-    Status = uefi_call_wrapper(BS->GetMemoryMap, 5, &mapSize, map, &mapKey, &descriptorSize, &descriptorVersion);
-    if (EFI_ERROR(Status)) {
-        TRACE(Status);
+    EFI_MEMORY_DESCRIPTOR* map = LibMemoryMap(&noEntries, &mapKey, &descriptorSize, &descriptorVersion);
+    if (map == NULL) {
+        Print(L"Memory Mapping Failed!");
+    } else {
+        Print(L"noEntries: %d\n", noEntries);
+        Print(L"mapkey: %d\n", mapKey);
+        Print(L"version: %d\n", descriptorVersion);
+        Print(L"dec_size: %d\n", descriptorSize);
     }
 
     void (*KernelStart)(UEFIBootData*) = ((__attribute__((sysv_abi)) void (*)(UEFIBootData*) ) header->e_entry);
@@ -266,13 +266,10 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     uefiBootData->frameBuffer = new_FrameBuf;
     uefiBootData->consoleFont = newFont;
     uefiBootData->mMap = map;
-    uefiBootData->mMapSize = mapSize;
+    uefiBootData->mMapSize = noEntries * descriptorSize;
     uefiBootData->mMapDescSize = descriptorSize;
 
-    Status = uefi_call_wrapper(BS->ExitBootServices, 2, ImageHandle, mapKey);
-    if (EFI_ERROR(Status)) {
-        TRACE(Status);
-    }
+    SystemTable->BootServices->ExitBootServices(ImageHandle, mapKey);
 
     KernelStart(uefiBootData);
     return EFI_SUCCESS;
