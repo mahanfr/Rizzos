@@ -268,6 +268,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     uefiBootData->mMap = map;
     uefiBootData->mMapSize = noEntries * descriptorSize;
     uefiBootData->mMapDescSize = descriptorSize;
+    uefiBootData->mMapEntries = noEntries;
 
     SystemTable->BootServices->ExitBootServices(ImageHandle, mapKey);
 

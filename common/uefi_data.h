@@ -11,6 +11,7 @@ typedef struct {
     void* mMap;
     uint64_t mMapSize;
     uint64_t mMapDescSize;
+    uint64_t mMapEntries;
 } UEFIBootData;
 
 #endif
