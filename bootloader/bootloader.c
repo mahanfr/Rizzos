@@ -2,7 +2,6 @@
 #include "gnu-efi/inc/efidef.h"
 #include "gnu-efi/inc/efilib.h"
 #include <elf.h>
-#include "../common/types.h"
 #include "../common/graphics.h"
 #include "../common/fonts.h"
 #include "../common/uefi_data.h"
@@ -121,9 +120,9 @@ PSF1_FONT* LoadPSF1Font(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandl
     return font;
 }
 
-int MemCmp(const void* aptr, const void* bptr, Size_t n) {
+int MemCmp(const void* aptr, const void* bptr, size_t n) {
     const unsigned char *a = aptr, *b = bptr;
-    for(Size_t i=0; i<n; i++) {
+    for(size_t i=0; i<n; i++) {
         if (a[i] < b[i]) return -1;
         else if (a[i] > b[i]) return 1;
     }

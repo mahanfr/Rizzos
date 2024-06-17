@@ -1,11 +1,10 @@
-#include "types.h"
-
 #ifndef __COMMON_GRAPHICS__
 #define __COMMON_GRAPHICS__
+#include <stddef.h>
 
 typedef struct {
     void* BaseAddress;
-    Size_t BufferSize;
+    size_t BufferSize;
     unsigned int Width;
     unsigned int Height;
     unsigned int PixelPerScanLine;
