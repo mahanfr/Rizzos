@@ -4,7 +4,7 @@ MKFS = /sbin/mkfs.vfat
 
 LDS = kernel.ld
 
-CFLAGS = -ffreestanding -fshort-wchar
+CFLAGS = -ffreestanding -fshort-wchar -Wall -Wextra -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition 
 LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
 
 SRC_DIR = ./src
@@ -29,6 +29,7 @@ kernel: always $(OBJS) link
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@ echo CC $^
+	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 link:
