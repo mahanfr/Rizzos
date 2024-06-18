@@ -39,7 +39,7 @@ Don't forget to give the project a star! Thanks again!
 
 ## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+Distributed under the GPL-3.0 License. See `LICENSE.txt` for more information.
 
 
 [contributors-shield]: https://img.shields.io/github/contributors/mahanfr/Rizzos.svg?style=for-the-badge
