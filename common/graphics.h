@@ -1,5 +1,5 @@
-#ifndef __COMMON_GRAPHICS__
-#define __COMMON_GRAPHICS__
+#ifndef _COMMON_GRAPHICS_
+#define _COMMON_GRAPHICS_
 #include <stddef.h>
 
 typedef struct {

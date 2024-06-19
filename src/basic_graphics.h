@@ -1,5 +1,5 @@
-#ifndef __BASIC_GRAPHICS__
-#define __BASIC_GRAPHICS__
+#ifndef _BASIC_GRAPHICS_
+#define _BASIC_GRAPHICS_
 
 #include "../common/uefi_data.h"
 

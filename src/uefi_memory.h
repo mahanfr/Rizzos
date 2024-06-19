@@ -1,5 +1,5 @@
-#ifndef __COMMON_UEFI_MEMORY__
-#define __COMMON_UEFI_MEMORY__
+#ifndef _UEFI_MEMORY_
+#define _UEFI_MEMORY_
 
 #include <stdint.h>
 

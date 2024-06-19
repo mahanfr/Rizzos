@@ -1,5 +1,5 @@
-#ifndef __MEMORY__
-#define __MEMORY__
+#ifndef _MEMORY_
+#define _MEMORY_
 
 #include <stdint.h>
 #include "uefi_memory.h"

@@ -1,5 +1,5 @@
-#ifndef __COMMON_UEFI_DATA_
-#define __COMMON_UEFI_DATA_
+#ifndef _COMMON_UEFI_DATA_
+#define _COMMON_UEFI_DATA_
 
 #include "fonts.h"
 #include "graphics.h"
