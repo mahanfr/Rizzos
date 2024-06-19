@@ -1,7 +1,7 @@
 #include "page_frame_allocator.h"
-#include "memory.h"
-#include "uefi_memory.h"
-#include "utils/bitmap.h"
+#include "../memory.h"
+#include "../uefi_memory.h"
+#include "../utils/bitmap.h"
 #include <stdint.h>
 #include <stdbool.h>
 

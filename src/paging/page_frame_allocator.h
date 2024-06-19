@@ -1,7 +1,7 @@
 #ifndef _PAGE_FRAME_ALLOCATOR_
 #define _PAGE_FRAME_ALLOCATOR_
 
-#include "uefi_memory.h"
+#include "../uefi_memory.h"
 #include <stdint.h>
 #include <stddef.h>
 

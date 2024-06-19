@@ -1,7 +1,7 @@
-#include "../common/graphics.h"
-#include "../common/uefi_data.h"
+#include "../../common/graphics.h"
+#include "../../common/uefi_data.h"
 #define STB_SPRINTF_IMPLEMENTATION
-#include "../lib/stb_sprintf.h"
+#include "../../lib/stb_sprintf.h"
 
 #include <stdarg.h>
 #define WHITE 0xFFFFFFFF
