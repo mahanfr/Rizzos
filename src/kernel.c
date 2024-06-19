@@ -22,8 +22,8 @@ void _start(UEFIBootData* uefiBootData) {
 
     pageFrameLockPages(&_KernelStart, kernelPages);
 
-    PageMapIndexer* pageIndexer = pageMapIndexer(0x1000);
-    print("%X - %X - %X - %X\n", pageIndexer->P_i, pageIndexer->PT_i, pageIndexer->PD_i, pageIndexer->PDP_i);
+    PageMapIndexer* pageIndexer = pageMapIndexer_Create(0x1000 * 52 + 0x50000 * 7);
+    print("%d - %d - %d - %d\n", pageIndexer->P_i, pageIndexer->PT_i, pageIndexer->PD_i, pageIndexer->PDP_i);
 
     return;
 }

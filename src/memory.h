@@ -8,4 +8,6 @@
 
 uint64_t getMemorySize(EFIMemoryDescriptor* mmap, uint64_t entries, uint64_t desc_size);
 
+void memSet(void* start, uint8_t value, uint64_t num);
+
 #endif
