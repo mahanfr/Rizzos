@@ -4,6 +4,7 @@ ENTRY(_start)
 SECTIONS
 {
     . = 2M;
+    _KernelStart = .;
     .text : ALIGN(4K)
     {
         *(.text)
@@ -21,4 +22,5 @@ SECTIONS
         *(.COMMON)
         *(.bss)
     }
+    _KernelEnd = .;
 }

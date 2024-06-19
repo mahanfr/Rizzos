@@ -8,10 +8,10 @@
 #define DEFAULT_CUR_X 8
 #define DEFAULT_CUR_Y 16
 
-Point CursorPosition = {.x= DEFAULT_CUR_X, .y= DEFAULT_CUR_Y};
-FrameBuffer frameBuffer;
-PSF1_FONT font;
-int Color = WHITE;
+static Point CursorPosition = {.x= DEFAULT_CUR_X, .y= DEFAULT_CUR_Y};
+static FrameBuffer frameBuffer;
+static PSF1_FONT font;
+static int Color = WHITE;
 
 void initBasicGraphics(UEFIBootData* uefiData) {
     frameBuffer = *uefiData->frameBuffer;

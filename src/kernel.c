@@ -1,33 +1,35 @@
 #include "../common/uefi_data.h"
 #include "basic_graphics.h"
-#include "memory.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "utils/bitmap.h"
+#include "page_frame_allocator.h"
 
-uint8_t buffer_test[16];
+extern uint64_t _KernelStart;
+extern uint64_t _KernelEnd;
+
+uint64_t bloat[6000];
 void _start(UEFIBootData* uefiBootData) {
-    initBasicGraphics(uefiBootData);
+    (void) initBasicGraphics(uefiBootData);
     print("Hello World From Kernel!\n");
 
-    print("Memory size in bytes: %d\n",
-            getMemorySize(uefiBootData->mMap,
-                uefiBootData->mMapEntries,
-                uefiBootData->mMapDescSize));
+    (void) pageFrameInitEfiMemoryMap(
+            uefiBootData->mMap,
+            uefiBootData->mMapEntries,
+            uefiBootData->mMapDescSize);
 
-    Bitmap *bitmap = {0};
-    bitmap->buffer = buffer_test;
-    bitmap->size = 16;
+    uint64_t kernelSize = (uint64_t)&_KernelEnd - (uint64_t)&_KernelStart;
+    uint64_t kernelPages = (uint64_t)(kernelSize / 4096) + 1;
 
-    bitmapSet(bitmap, 0, true);
-    bitmapSet(bitmap, 8, true);
-    bitmapSet(bitmap, 13, true);
-    bitmapSet(bitmap, 13, false);
-    bitmapSet(bitmap, 14, true);
+    pageFrameLockPages(&_KernelStart, kernelPages);
 
-    for(int i=0; i < 16; i++) {
-        print("bit[%d]: %d\n",i ,bitmapGet(bitmap, i));
+    print("Free RAM: %dKB\n",getFreeMemorySize() / 1024);
+    print("Used RAM: %dKB\n",getUsedMemorySize() / 1024);
+    print("Reserved RAM: %dKB\n",getReservedMemorySize() / 1024);
+
+    for(int i = 0; i < 10; i++) {
+        void* address = pageFrameRequestPage();
+        print("address%d: 0x%X\n",i, address);
     }
 
-   return;
+    return;
 }

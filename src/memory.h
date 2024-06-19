@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "uefi_memory.h"
 
+#define MEM_FRAME_SIZE 4096
+
 uint64_t getMemorySize(EFIMemoryDescriptor* mmap, uint64_t entries, uint64_t desc_size);
 
 #endif
