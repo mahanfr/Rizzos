@@ -2,6 +2,7 @@
 #include "../../common/uefi_data.h"
 #define STB_SPRINTF_IMPLEMENTATION
 #include "../../lib/stb_sprintf.h"
+#include "../memory.h"
 
 #include <stdarg.h>
 #define WHITE 0xFFFFFFFF
@@ -16,6 +17,12 @@ static int Color = WHITE;
 void initBasicGraphics(UEFIBootData* uefiData) {
     frameBuffer = *uefiData->frameBuffer;
     font = *uefiData->consoleFont;
+}
+
+void clearBuffer() {
+    memSet(frameBuffer.BaseAddress, 0, frameBuffer.BufferSize);
+    CursorPosition.x= DEFAULT_CUR_X; 
+    CursorPosition.y= DEFAULT_CUR_Y;
 }
 
 void putChar(unsigned int color, char chr,
@@ -40,8 +47,8 @@ void print(const char* fmt, ...) {
     va_end(va);
     char* chr = str;
     while (*chr != 0) {
-        if (CursorPosition.y > frameBuffer.Height) {
-            return;
+        if (CursorPosition.y > frameBuffer.Height / 2) {
+            clearBuffer();
         }
         switch (*chr) {
             case '\n':
