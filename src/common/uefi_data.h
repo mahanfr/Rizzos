@@ -4,7 +4,7 @@
 #include "fonts.h"
 #include "graphics.h"
 #include <stdint.h>
-#include "../src/uefi_memory.h"
+#include "../uefi_memory.h"
 
 typedef struct {
     FrameBuffer* frameBuffer;

@@ -1,9 +1,9 @@
 #include "basic_graphics.h"
-#include "../../common/graphics.h"
-#include "../../common/uefi_data.h"
+#include "../common/graphics.h"
+#include "../common/uefi_data.h"
 #include <stdint.h>
 #define STB_SPRINTF_IMPLEMENTATION
-#include "../../lib/stb_sprintf.h"
+#include "../lib/stb_sprintf.h"
 #include "../memory.h"
 
 #include <stdarg.h>

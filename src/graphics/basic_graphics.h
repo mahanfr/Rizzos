@@ -1,7 +1,7 @@
 #ifndef _BASIC_GRAPHICS_
 #define _BASIC_GRAPHICS_
 
-#include "../../common/uefi_data.h"
+#include "../common/uefi_data.h"
 
 void BG_Init(UEFIBootData* uefiData);
 void BG_ClearBg(void);
