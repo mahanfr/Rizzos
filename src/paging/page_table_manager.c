@@ -18,46 +18,46 @@ void pageTableManager_MapMemory(PageTableManager* ptm, void* virtualMemory, void
 
     pde = ptm->PML4->entries[indexer->PDP_i];
     PageTable* pdp;
-    if(!pde.Present) {
+    if(!PDE_GetFlag(&pde, PT_PRESENT)) {
         pdp = (PageTable*) pageFrameRequestPage();
         memSet(pdp, 0, MEM_FRAME_SIZE);
-        pde.Address = (uint64_t) pdp >> 12;
-        pde.Present = true;
-        pde.ReadWrite = true;
+        PDE_SetAddress(&pde, (uint64_t) pdp >> 12);
+        PDE_SetFlag(&pde, PT_PRESENT, true);
+        PDE_SetFlag(&pde, PT_READWRITE, true);
         ptm->PML4->entries[indexer->PDP_i] = pde;
     } else {
-        pdp = (PageTable*)((uint64_t) pde.Address << 12);
+        pdp = (PageTable*)((uint64_t)PDE_GetAddress(&pde) << 12);
     }
 
     pde = pdp->entries[indexer->PD_i];
     PageTable* pd;
-    if (!pde.Present){
+    if(!PDE_GetFlag(&pde, PT_PRESENT)) {
         pd = (PageTable*) pageFrameRequestPage();
         memSet(pd, 0, MEM_FRAME_SIZE);
-        pde.Address = (uint64_t)pd >> 12;
-        pde.Present = true;
-        pde.ReadWrite = true;
+        PDE_SetAddress(&pde, (uint64_t) pd >> 12);
+        PDE_SetFlag(&pde, PT_PRESENT, true);
+        PDE_SetFlag(&pde, PT_READWRITE, true);
         pdp->entries[indexer->PD_i] = pde;
     } else {
-        pd = (PageTable*)((uint64_t)pde.Address << 12);
+        pd = (PageTable*)((uint64_t)PDE_GetAddress(&pde) << 12);
     }
 
     pde = pd->entries[indexer->PT_i];
     PageTable* pt;
-    if (!pde.Present){
+    if(!PDE_GetFlag(&pde, PT_PRESENT)) {
         pt = (PageTable*) pageFrameRequestPage();
         memSet(pt, 0, MEM_FRAME_SIZE);
-        pde.Address = (uint64_t)pt >> 12;
-        pde.Present = true;
-        pde.ReadWrite = true;
+        PDE_SetAddress(&pde, (uint64_t) pt >> 12);
+        PDE_SetFlag(&pde, PT_PRESENT, true);
+        PDE_SetFlag(&pde, PT_READWRITE, true);
         pd->entries[indexer->PT_i] = pde;
     } else {
-        pt = (PageTable*)((uint64_t)pde.Address << 12);
+        pt = (PageTable*)((uint64_t)PDE_GetAddress(&pde) << 12);
     }
 
     pde = pt->entries[indexer->P_i];
-    pde.Address = (uint64_t)physicalMemory >> 12;
-    pde.Present = true;
-    pde.ReadWrite = true;
+    PDE_SetAddress(&pde, (uint64_t) physicalMemory >> 12);
+    PDE_SetFlag(&pde, PT_PRESENT, true);
+    PDE_SetFlag(&pde, PT_READWRITE, true);
     pt->entries[indexer->P_i] = pde;
 }

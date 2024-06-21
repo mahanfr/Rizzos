@@ -3,19 +3,31 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
+typedef enum {
+    PT_PRESENT = 0,
+    PT_READWRITE = 1,
+    PT_USERSUPER = 2,
+    PT_WRITETHROUGH = 3,
+    PT_CACHEDISABLED = 4,
+    PT_ACCESSED = 5,
+    PT_DIRTY = 6,
+    PT_LARGEPAGES = 7,
+    PT_GLOBAL = 8,
+    PT_ACCESS0 = 9,
+    PT_ACCESS1 = 10,
+    PT_ACCESS2 = 11,
+    PT_NX = 63,
+} PT_Flag;
+
 typedef struct {
-    bool Present : 1;
-    bool ReadWrite: 1;
-    bool UserSuper: 1;
-    bool WriteThrough: 1;
-    bool CacheDisabled: 1;
-    bool Accessed: 1;
-    bool Dirty: 1;
-    bool LargePages: 1;
-    bool Global: 1;
-    uint8_t Available: 3;
-    uint64_t Address: 52;
+    uint64_t value;
 } PageDirEntry;
+
+void PDE_SetFlag(PageDirEntry* pde, PT_Flag flag, bool enabled);
+bool PDE_GetFlag(PageDirEntry* pde, PT_Flag flag);
+void PDE_SetAddress(PageDirEntry* pde, uint64_t address);
+uint64_t PDE_GetAddress(PageDirEntry* pde);
 
 typedef struct {
     PageDirEntry entries[512];
