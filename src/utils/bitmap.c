@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include "bitmap.h"
 
-bool bitmapGet(Bitmap* bitmap, uint64_t index) {
+bool Bitmap_Get(Bitmap* bitmap, uint64_t index) {
     uint64_t byte_index;
     uint8_t bit_index;
     uint8_t bit_mask;
@@ -15,7 +15,7 @@ bool bitmapGet(Bitmap* bitmap, uint64_t index) {
     return false;
 }
 
-bool bitmapSet(Bitmap* bitmap,uint64_t index, bool value) {
+bool Bitmap_Set(Bitmap* bitmap,uint64_t index, bool value) {
     if (index > bitmap->size * 8) return false;
     uint64_t byte_index;
     uint8_t bit_index;

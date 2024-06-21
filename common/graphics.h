@@ -1,18 +1,18 @@
 #ifndef _COMMON_GRAPHICS_
 #define _COMMON_GRAPHICS_
-#include <stddef.h>
+#include <stdint.h>
 
 typedef struct {
-    void* BaseAddress;
-    size_t BufferSize;
-    unsigned int Width;
-    unsigned int Height;
-    unsigned int PixelPerScanLine;
+    void* baseAddress;
+    uint64_t bufferSize;
+    uint32_t width;
+    uint32_t height;
+    uint32_t pixelPerScanLine;
 } FrameBuffer;
 
 typedef struct {
-    unsigned int x;
-    unsigned int y;
+    uint32_t x;
+    uint32_t y;
 } Point;
 
 #endif

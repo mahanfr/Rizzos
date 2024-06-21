@@ -11,13 +11,13 @@ extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
 
 void _start(UEFIBootData* uefiBootData) {
-    (void) initBasicGraphics(uefiBootData);
-    setBgColor(0xFF02242b);
-    clearBackground();
+    (void) BG_Init(uefiBootData);
+    BG_SetBgColor(0xFF02242b);
+    BG_ClearBg();
     print("Hello World From Kernel!\n");
 
     // Init PageFrame Memory Mapping
-    (void) pageFrameInitEfiMemoryMap(
+    (void) PFA_InitEfiMemoryMap(
             uefiBootData->mMap,
             uefiBootData->mMapEntries,
             uefiBootData->mMapDescSize);
@@ -25,24 +25,24 @@ void _start(UEFIBootData* uefiBootData) {
     // Locking Kernels location in memory
     uint64_t kernelSize = (uint64_t)&_KernelEnd - (uint64_t)&_KernelStart;
     uint64_t kernelPages = (uint64_t)(kernelSize / MEM_FRAME_SIZE) + 1;
-    pageFrameLockPages(&_KernelStart, kernelPages);
-    pageFrameLockPages(uefiBootData->frameBuffer->BaseAddress, uefiBootData->frameBuffer->BufferSize / MEM_FRAME_SIZE + 1);
+    PFA_LockPages(&_KernelStart, kernelPages);
+    PFA_LockPages(uefiBootData->frameBuffer->baseAddress, uefiBootData->frameBuffer->bufferSize / MEM_FRAME_SIZE + 1);
 
     // Create a PageTableManager
-    PageTable* PML4 = (PageTable*) pageFrameRequestPage();
-    memSet64(PML4, 0, MEM_FRAME_SIZE);
-    PageTableManager pageTableManager = pageTableManager_Create(PML4);
+    PageTable* PML4 = (PageTable*) PFA_RequestPage();
+    MEM_Set64(PML4, 0, MEM_FRAME_SIZE);
+    PageTableManager pageTableManager = PTM_Create(PML4);
 
     // Map All the Pages of Memory to thire Virtual Memory
-    uint64_t memorySize = getMemorySize(uefiBootData->mMap, uefiBootData->mMapEntries, uefiBootData->mMapDescSize);
+    uint64_t memorySize = MEM_GetTotalSize(uefiBootData->mMap, uefiBootData->mMapEntries, uefiBootData->mMapDescSize);
     for(uint64_t i = 0; i < memorySize; i+= MEM_FRAME_SIZE) {
-        pageTableManager_MapMemory(&pageTableManager, (void*)i, (void*)i);
+        PTM_MapMemory(&pageTableManager, (void*)i, (void*)i);
     }
     // Map All the Pages of Memory to thire Virtual Memory
-    for(uint64_t i = (uint64_t) uefiBootData->frameBuffer->BaseAddress;
-            i < (uint64_t)uefiBootData->frameBuffer->BaseAddress + uefiBootData->frameBuffer->BufferSize;
+    for(uint64_t i = (uint64_t) uefiBootData->frameBuffer->baseAddress;
+            i < (uint64_t)uefiBootData->frameBuffer->baseAddress + uefiBootData->frameBuffer->bufferSize;
             i+= MEM_FRAME_SIZE) {
-        pageTableManager_MapMemory(&pageTableManager, (void*)i, (void*)i);
+        PTM_MapMemory(&pageTableManager, (void*)i, (void*)i);
     }
 
     asm("mov %0, %%cr3" :: "r" (PML4));

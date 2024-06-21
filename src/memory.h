@@ -6,10 +6,10 @@
 
 #define MEM_FRAME_SIZE 0x1000
 
-uint64_t getMemorySize(EFIMemoryDescriptor* mmap, uint64_t entries, uint64_t desc_size);
+uint64_t MEM_GetTotalSize(EFIMemoryDescriptor* mmap, uint64_t entries, uint64_t desc_size);
 
-void memSet(void* start, uint8_t value, uint64_t num);
-void memSet32(void* start, uint32_t value, uint64_t num);
-void memSet64(void* start, uint64_t value, uint64_t num);
+void MEM_Set(void* start, uint8_t value, uint64_t num);
+void MEM_Set32(void* start, uint32_t value, uint64_t num);
+void MEM_Set64(void* start, uint64_t value, uint64_t num);
 
 #endif

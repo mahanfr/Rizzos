@@ -1,7 +1,7 @@
-
+#include "uefi_memory.h"
 #include <stdint.h>
 
-const char* uefiMemTypeName(uint32_t type) {
+const char* UEFI_MEM_TypeName(uint32_t type) {
     switch (type) {
         case 0:
             return "EfiReservedMemoryType";

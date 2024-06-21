@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-const char* uefiMemTypeName(uint32_t type);
+const char* UEFI_MEM_TypeName(uint32_t type);
 
 typedef struct {
     uint32_t type;

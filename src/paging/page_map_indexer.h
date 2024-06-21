@@ -9,6 +9,6 @@ typedef struct {
     uint64_t P_i;
 } PageMapIndexer;
 
-PageMapIndexer* pageMapIndexer_Create(uint64_t virtualAddress);
+PageMapIndexer* PMI_Create(uint64_t virtualAddress);
 
 #endif

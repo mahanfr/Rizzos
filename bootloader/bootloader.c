@@ -12,7 +12,7 @@
 #endif
 
 #ifndef TRACE
-#define TRACE(status)   LOG("Status: '%r', Function: '%a', File: '%a', Line: '%d'\r\n", status, __FUNCTION__, __FILE__, __LINE__)
+#define TRACE(status) LOG("Status: '%r', Function: '%a', File: '%a', Line: '%d'\r\n", status, __FUNCTION__, __FILE__, __LINE__)
 #endif
 
 FrameBuffer frameBuffer;
@@ -28,11 +28,11 @@ FrameBuffer* InitializeGOP() {
     } else {
         Print(L"GOP Located sucessfully!\n\r");
     }
-    frameBuffer.BaseAddress = (void*) gop->Mode->FrameBufferBase;
-    frameBuffer.BufferSize = gop->Mode->FrameBufferSize;
-    frameBuffer.Width = gop->Mode->Info->HorizontalResolution;
-    frameBuffer.Height = gop->Mode->Info->VerticalResolution;
-    frameBuffer.PixelPerScanLine = gop->Mode->Info->PixelsPerScanLine;
+    frameBuffer.baseAddress = (void*) gop->Mode->FrameBufferBase;
+    frameBuffer.bufferSize = gop->Mode->FrameBufferSize;
+    frameBuffer.width = gop->Mode->Info->HorizontalResolution;
+    frameBuffer.height = gop->Mode->Info->VerticalResolution;
+    frameBuffer.pixelPerScanLine = gop->Mode->Info->PixelsPerScanLine;
 
     return &frameBuffer;
 }
@@ -265,7 +265,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     UEFIBootData* uefiBootData;
     uefiBootData->frameBuffer = new_FrameBuf;
     uefiBootData->consoleFont = newFont;
-    uefiBootData->mMap = map;
+    uefiBootData->mMap = (EFIMemoryDescriptor*) map;
     uefiBootData->mMapSize = noEntries * descriptorSize;
     uefiBootData->mMapDescSize = descriptorSize;
     uefiBootData->mMapEntries = noEntries;

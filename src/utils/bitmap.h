@@ -10,7 +10,7 @@ typedef struct {
     uint8_t* buffer;
 } Bitmap;
 
-bool bitmapGet(Bitmap* bitmap,uint64_t index);
-bool bitmapSet(Bitmap* bitmap,uint64_t index, bool value);
+bool Bitmap_Get(Bitmap* bitmap,uint64_t index);
+bool Bitmap_Set(Bitmap* bitmap,uint64_t index, bool value);
 
 #endif

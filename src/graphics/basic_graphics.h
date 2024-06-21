@@ -3,10 +3,11 @@
 
 #include "../../common/uefi_data.h"
 
-void initBasicGraphics(UEFIBootData* uefiData);
-void clearBackground();
-void setBgColor(int bgColor);
-void setColor(int color);
+void BG_Init(UEFIBootData* uefiData);
+void BG_ClearBg(void);
+void BG_SetBgColor(int bgColor);
+void BG_SetColor(int color);
+void BG_SetCursor(uint32_t x_offset, uint32_t y_offset);
 void print(const char* fmt, ...);
 
 #endif

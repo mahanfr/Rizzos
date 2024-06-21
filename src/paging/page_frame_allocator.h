@@ -5,14 +5,14 @@
 #include <stdint.h>
 #include <stddef.h>
 
-void pageFrameInitEfiMemoryMap(EFIMemoryDescriptor* mmap, size_t mmap_entries, size_t mmap_desc_size);
-void* pageFrameRequestPage();
-void pageFrameLockPages(void* address, uint64_t pageCount);
-void pageFrameLockPage(void* address);
-void pageFrameFreePages(void* address, uint64_t pageCount);
-void pageFrameFreePage(void* address);
-uint64_t getFreeMemorySize();
-uint64_t getUsedMemorySize();
-uint64_t getReservedMemorySize();
+void PFA_InitEfiMemoryMap(EFIMemoryDescriptor* mmap, size_t mmap_entries, size_t mmap_desc_size);
+void* PFA_RequestPage(void);
+void PFA_LockPages(void* address, uint64_t pageCount);
+void PFA_LockPage(void* address);
+void PFA_FreePages(void* address, uint64_t pageCount);
+void PFA_FreePage(void* address);
+uint64_t PFA_GetFreeMemorySize(void);
+uint64_t PFA_GetUsedMemorySize(void);
+uint64_t PFA_GetReservedMemorySize(void);
 
 #endif

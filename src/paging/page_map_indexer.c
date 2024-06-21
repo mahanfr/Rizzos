@@ -1,6 +1,6 @@
 #include "page_map_indexer.h"
 
-PageMapIndexer* pageMapIndexer_Create(uint64_t virtualAddress) {
+PageMapIndexer* PMI_Create(uint64_t virtualAddress) {
     PageMapIndexer* pmi = {0};
     virtualAddress >>= 12;
     pmi->P_i = virtualAddress & 0x1ff;
