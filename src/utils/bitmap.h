@@ -11,6 +11,6 @@ typedef struct {
 } Bitmap;
 
 bool bitmapGet(Bitmap* bitmap,uint64_t index);
-void bitmapSet(Bitmap* bitmap,uint64_t index, bool value);
+bool bitmapSet(Bitmap* bitmap,uint64_t index, bool value);
 
 #endif

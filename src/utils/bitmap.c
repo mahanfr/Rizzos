@@ -15,7 +15,8 @@ bool bitmapGet(Bitmap* bitmap, uint64_t index) {
     return false;
 }
 
-void bitmapSet(Bitmap* bitmap,uint64_t index, bool value) {
+bool bitmapSet(Bitmap* bitmap,uint64_t index, bool value) {
+    if (index > bitmap->size * 8) return false;
     uint64_t byte_index;
     uint8_t bit_index;
     uint8_t bit_mask;
@@ -26,4 +27,5 @@ void bitmapSet(Bitmap* bitmap,uint64_t index, bool value) {
     if (value) {
         bitmap->buffer[byte_index] |= (uint8_t) bit_mask;
     }
+    return true;
 }

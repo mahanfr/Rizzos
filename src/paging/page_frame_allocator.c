@@ -10,6 +10,7 @@ static uint64_t reservedMemory;
 static uint64_t usedMemory;
 static bool initialized = false;
 static Bitmap pageBitmap;
+static uint64_t lastReservedPage = 0;
 
 void initBitmap(size_t bitmap_size, void* bufferAddress);
 void reservePage(void* address);
@@ -52,30 +53,29 @@ void pageFrameInitEfiMemoryMap(EFIMemoryDescriptor *mmap, size_t desc_entries, s
 }
 
 void* pageFrameRequestPage() {
-    for(uint64_t index = 0; index < pageBitmap.size * 8; index++) {
-        if (bitmapGet(&pageBitmap, index)) continue;
+    for(uint64_t index = lastReservedPage; index < pageBitmap.size * 8; index++) {
+        if (bitmapGet(&pageBitmap, index) == true) continue;
         pageFrameLockPage((void*) (index * MEM_FRAME_SIZE));
+        lastReservedPage = index;
         return (void*)(index * MEM_FRAME_SIZE);
     }
     return NULL;
 }
 
 void initBitmap(size_t bitmap_size, void* bufferAddress) {
-    if (pageBitmap.size > 0) return;
     pageBitmap.size = bitmap_size;
     pageBitmap.buffer = (uint8_t*) bufferAddress;
 
-    for(int i=0; i< bitmap_size; i++) {
-        pageBitmap.buffer[i] = 0;
-    }
+    memSet(pageBitmap.buffer, 0 , pageBitmap.size);
 }
 
 void pageFrameLockPage(void* address) {
     uint64_t index = (uint64_t) address / MEM_FRAME_SIZE;
     if(bitmapGet(&pageBitmap, index)) return;
-    bitmapSet(&pageBitmap, index, true);
-    freeMemory -= MEM_FRAME_SIZE;
-    usedMemory += MEM_FRAME_SIZE;
+    if(bitmapSet(&pageBitmap, index, true)) {
+        freeMemory -= MEM_FRAME_SIZE;
+        usedMemory += MEM_FRAME_SIZE;
+    }
 }
 
 void pageFrameLockPages(void* address, uint64_t pageCount) {
@@ -87,9 +87,11 @@ void pageFrameLockPages(void* address, uint64_t pageCount) {
 void pageFrameFreePage(void* address) {
     uint64_t index = (uint64_t) address / MEM_FRAME_SIZE;
     if(!bitmapGet(&pageBitmap, index)) return;
-    bitmapSet(&pageBitmap, index, false);
-    freeMemory += MEM_FRAME_SIZE;
-    usedMemory -= MEM_FRAME_SIZE;
+    if(bitmapSet(&pageBitmap, index, false)){
+        freeMemory += MEM_FRAME_SIZE;
+        usedMemory -= MEM_FRAME_SIZE;
+        if (lastReservedPage > index) lastReservedPage = index;
+    }
 }
 
 void pageFrameFreePages(void* address, uint64_t pageCount) {
@@ -101,9 +103,11 @@ void pageFrameFreePages(void* address, uint64_t pageCount) {
 void unreservePage(void* address) {
     uint64_t index = (uint64_t) address / MEM_FRAME_SIZE;
     if(!bitmapGet(&pageBitmap, index)) return;
-    bitmapSet(&pageBitmap, index, false);
-    freeMemory += MEM_FRAME_SIZE;
-    reservedMemory -= MEM_FRAME_SIZE;
+    if(bitmapSet(&pageBitmap, index, false)) {
+        freeMemory += MEM_FRAME_SIZE;
+        reservedMemory -= MEM_FRAME_SIZE;
+        if (lastReservedPage > index) lastReservedPage = index;
+    }
 }
 
 void unreservePages(void* address, uint64_t pageCount) {
@@ -115,9 +119,10 @@ void unreservePages(void* address, uint64_t pageCount) {
 void reservePage(void* address) {
     uint64_t index = (uint64_t) address / MEM_FRAME_SIZE;
     if(bitmapGet(&pageBitmap, index)) return;
-    bitmapSet(&pageBitmap, index, true);
-    freeMemory -= MEM_FRAME_SIZE;
-    reservedMemory += MEM_FRAME_SIZE;
+    if(bitmapSet(&pageBitmap, index, true)) {
+        freeMemory -= MEM_FRAME_SIZE;
+        reservedMemory += MEM_FRAME_SIZE;
+    }
 }
 
 void reservePages(void* address, uint64_t pageCount) {

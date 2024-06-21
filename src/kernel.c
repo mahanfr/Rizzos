@@ -26,7 +26,7 @@ void _start(UEFIBootData* uefiBootData) {
     uint64_t kernelSize = (uint64_t)&_KernelEnd - (uint64_t)&_KernelStart;
     uint64_t kernelPages = (uint64_t)(kernelSize / 4096) + 1;
     pageFrameLockPages(&_KernelStart, kernelPages);
-    pageFrameLockPages(uefiBootData->frameBuffer->BaseAddress, uefiBootData->frameBuffer->BufferSize);
+    pageFrameLockPages(uefiBootData->frameBuffer->BaseAddress, uefiBootData->frameBuffer->BufferSize / MEM_FRAME_SIZE + 1);
     print("Locking FrameBuffer\n");
 
     // Create a PageTableManager
@@ -39,7 +39,6 @@ void _start(UEFIBootData* uefiBootData) {
     for(uint64_t i = 0; i < memorySize; i+= MEM_FRAME_SIZE) {
         pageTableManager_MapMemory(pageTableManager, (void*)i, (void*)i);
     }
-    print("Table Manager Mapped\n");
     // Map All the Pages of Memory to thire Virtual Memory
     for(uint64_t i = (uint64_t) uefiBootData->frameBuffer->BaseAddress;
             i < (uint64_t)uefiBootData->frameBuffer->BaseAddress + uefiBootData->frameBuffer->BufferSize;
