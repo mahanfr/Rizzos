@@ -20,7 +20,7 @@ void pageTableManager_MapMemory(PageTableManager* ptm, void* virtualMemory, void
     PageTable* pdp;
     if(!PDE_GetFlag(&pde, PT_PRESENT)) {
         pdp = (PageTable*) pageFrameRequestPage();
-        memSet(pdp, 0, MEM_FRAME_SIZE);
+        memSet64(pdp, 0, MEM_FRAME_SIZE);
         PDE_SetAddress(&pde, (uint64_t) pdp >> 12);
         PDE_SetFlag(&pde, PT_PRESENT, true);
         PDE_SetFlag(&pde, PT_READWRITE, true);
@@ -33,7 +33,7 @@ void pageTableManager_MapMemory(PageTableManager* ptm, void* virtualMemory, void
     PageTable* pd;
     if(!PDE_GetFlag(&pde, PT_PRESENT)) {
         pd = (PageTable*) pageFrameRequestPage();
-        memSet(pd, 0, MEM_FRAME_SIZE);
+        memSet64(pd, 0, MEM_FRAME_SIZE);
         PDE_SetAddress(&pde, (uint64_t) pd >> 12);
         PDE_SetFlag(&pde, PT_PRESENT, true);
         PDE_SetFlag(&pde, PT_READWRITE, true);
@@ -46,7 +46,7 @@ void pageTableManager_MapMemory(PageTableManager* ptm, void* virtualMemory, void
     PageTable* pt;
     if(!PDE_GetFlag(&pde, PT_PRESENT)) {
         pt = (PageTable*) pageFrameRequestPage();
-        memSet(pt, 0, MEM_FRAME_SIZE);
+        memSet64(pt, 0, MEM_FRAME_SIZE);
         PDE_SetAddress(&pde, (uint64_t) pt >> 12);
         PDE_SetFlag(&pde, PT_PRESENT, true);
         PDE_SetFlag(&pde, PT_READWRITE, true);

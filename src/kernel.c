@@ -30,7 +30,7 @@ void _start(UEFIBootData* uefiBootData) {
 
     // Create a PageTableManager
     PageTable* PML4 = (PageTable*) pageFrameRequestPage();
-    memSet(PML4, 0, MEM_FRAME_SIZE);
+    memSet64(PML4, 0, MEM_FRAME_SIZE);
     PageTableManager pageTableManager = pageTableManager_Create(PML4);
 
     // Map All the Pages of Memory to thire Virtual Memory

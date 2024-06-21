@@ -66,7 +66,7 @@ void initBitmap(size_t bitmap_size, void* bufferAddress) {
     pageBitmap.size = bitmap_size;
     pageBitmap.buffer = (uint8_t*) bufferAddress;
 
-    memSet(pageBitmap.buffer, 0 , pageBitmap.size);
+    memSet64(pageBitmap.buffer, 0 , pageBitmap.size);
 }
 
 void pageFrameLockPage(void* address) {
