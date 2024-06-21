@@ -25,7 +25,7 @@ void pageFrameInitEfiMemoryMap(EFIMemoryDescriptor *mmap, size_t desc_entries, s
     size_t largest_free_mem_size = 0;
 
     for(int i = 0; i < desc_entries; i++) {
-        EFIMemoryDescriptor* desc = (EFIMemoryDescriptor*)((uint64_t)mmap + (i + desc_size));
+        EFIMemoryDescriptor* desc = (EFIMemoryDescriptor*)((uint64_t)mmap + (i * desc_size));
         if (desc->type == 7) {
             if(desc->numPages * MEM_FRAME_SIZE > largest_free_mem_size) {
                 largest_free_mem = desc->physAddr;
@@ -40,7 +40,7 @@ void pageFrameInitEfiMemoryMap(EFIMemoryDescriptor *mmap, size_t desc_entries, s
 
     initBitmap(bitmap_size, largest_free_mem);
 
-    pageFrameLockPages(&pageBitmap, pageBitmap.size / 4096 + 1);
+    pageFrameLockPages(&pageBitmap.buffer, pageBitmap.size / 4096 + 1);
 
     for(int i = 0; i < desc_entries; i++) {
         EFIMemoryDescriptor* desc = (EFIMemoryDescriptor*)
@@ -94,7 +94,7 @@ void pageFrameFreePage(void* address) {
 
 void pageFrameFreePages(void* address, uint64_t pageCount) {
     for(int i=0;i< pageCount; i++) {
-        pageFrameFreePage((void*)address + (i * MEM_FRAME_SIZE));
+        pageFrameFreePage((void*)((uint64_t)address + (i * MEM_FRAME_SIZE)));
     }
 }
 
@@ -108,7 +108,7 @@ void unreservePage(void* address) {
 
 void unreservePages(void* address, uint64_t pageCount) {
     for(int i=0;i< pageCount; i++) {
-        unreservePage((void*)address + (i * MEM_FRAME_SIZE));
+        unreservePage((void*)((uint64_t)address + (i * MEM_FRAME_SIZE)));
     }
 }
 
