@@ -4,7 +4,7 @@ MKFS = /sbin/mkfs.vfat
 
 LDS = kernel.ld
 
-CFLAGS = -ffreestanding -fshort-wchar -Wall -Wextra -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition 
+CFLAGS = -ffreestanding -fshort-wchar -Wall -Wextra -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition
 LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
 
 SRC_DIR = ./src
@@ -36,8 +36,12 @@ link:
 	@ echo Linking object files..
 	$(LD) $(LDFLAGS) -o $(KERNEL) $(OBJS)
 
-target-img: bootloader kernel
-	dd if=/dev/zero of=$(TARGET) bs=512 count=93750
+base-img:
+ifeq (,$(wildcard $(TARGET)))
+	dd if=/dev/zero of=$^ bs=512 count=93750
+endif
+
+target-img: base-img bootloader kernel
 	$(MKFS) $(TARGET)
 	mmd -i $(TARGET) ::/EFI
 	mmd -i $(TARGET) ::/EFI/BOOT
