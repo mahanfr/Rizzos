@@ -14,6 +14,18 @@ uint64_t getMemorySize(EFIMemoryDescriptor* mmap,
     return memory_size;
 }
 
+void memSet64(void* start, uint64_t value, uint64_t num) {
+    for(uint64_t i=0; i < num; i+=8) {
+        *(uint64_t*)((uint64_t) start + i) = value;
+    }
+}
+
+void memSet32(void* start, uint32_t value, uint64_t num) {
+    for(uint64_t i=0; i < num; i+=4) {
+        *(uint32_t*)((uint64_t) start + i) = value;
+    }
+}
+
 void memSet(void* start, uint8_t value, uint64_t num) {
     for(uint64_t i=0; i < num; i++) {
         *(uint8_t*)((uint64_t) start + i) = value;

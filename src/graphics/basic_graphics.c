@@ -1,3 +1,4 @@
+#include "basic_graphics.h"
 #include "../../common/graphics.h"
 #include "../../common/uefi_data.h"
 #define STB_SPRINTF_IMPLEMENTATION
@@ -13,14 +14,27 @@ static Point CursorPosition = {.x= DEFAULT_CUR_X, .y= DEFAULT_CUR_Y};
 static FrameBuffer frameBuffer;
 static PSF1_FONT font;
 static int Color = WHITE;
+static int BgColor = 0;
 
 void initBasicGraphics(UEFIBootData* uefiData) {
     frameBuffer = *uefiData->frameBuffer;
     font = *uefiData->consoleFont;
 }
 
+void setBgColor(int bgColor) {
+    BgColor = bgColor;
+}
+
+void setColor(int color) {
+    Color = color;
+}
+
+void clearBackground() {
+    memSet32(frameBuffer.BaseAddress, BgColor, frameBuffer.BufferSize);
+}
+
 void clearBuffer() {
-    memSet(frameBuffer.BaseAddress, 0, frameBuffer.BufferSize);
+    clearBackground();
     CursorPosition.x= DEFAULT_CUR_X; 
     CursorPosition.y= DEFAULT_CUR_Y;
 }

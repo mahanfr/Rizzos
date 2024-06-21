@@ -4,6 +4,9 @@
 #include "../../common/uefi_data.h"
 
 void initBasicGraphics(UEFIBootData* uefiData);
-void print(char* str, ...);
+void clearBackground();
+void setBgColor(int bgColor);
+void setColor(int color);
+void print(const char* fmt, ...);
 
 #endif
