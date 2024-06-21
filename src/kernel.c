@@ -24,7 +24,7 @@ void _start(UEFIBootData* uefiBootData) {
 
     // Locking Kernels location in memory
     uint64_t kernelSize = (uint64_t)&_KernelEnd - (uint64_t)&_KernelStart;
-    uint64_t kernelPages = (uint64_t)(kernelSize / 4096) + 1;
+    uint64_t kernelPages = (uint64_t)(kernelSize / MEM_FRAME_SIZE) + 1;
     pageFrameLockPages(&_KernelStart, kernelPages);
     pageFrameLockPages(uefiBootData->frameBuffer->BaseAddress, uefiBootData->frameBuffer->BufferSize / MEM_FRAME_SIZE + 1);
     print("Locking FrameBuffer\n");
@@ -32,24 +32,24 @@ void _start(UEFIBootData* uefiBootData) {
     // Create a PageTableManager
     PageTable* PML4 = (PageTable*) pageFrameRequestPage();
     memSet(PML4, 0, MEM_FRAME_SIZE);
-    PageTableManager* pageTableManager = pageTableManager_Create(PML4);
+    PageTableManager pageTableManager = pageTableManager_Create(PML4);
 
     // Map All the Pages of Memory to thire Virtual Memory
     uint64_t memorySize = getMemorySize(uefiBootData->mMap, uefiBootData->mMapEntries, uefiBootData->mMapDescSize);
     for(uint64_t i = 0; i < memorySize; i+= MEM_FRAME_SIZE) {
-        pageTableManager_MapMemory(pageTableManager, (void*)i, (void*)i);
+        pageTableManager_MapMemory(&pageTableManager, (void*)i, (void*)i);
     }
     // Map All the Pages of Memory to thire Virtual Memory
     for(uint64_t i = (uint64_t) uefiBootData->frameBuffer->BaseAddress;
             i < (uint64_t)uefiBootData->frameBuffer->BaseAddress + uefiBootData->frameBuffer->BufferSize;
             i+= MEM_FRAME_SIZE) {
-        pageTableManager_MapMemory(pageTableManager, (void*)i, (void*)i);
+        pageTableManager_MapMemory(&pageTableManager, (void*)i, (void*)i);
     }
     print("Mapping FrameBuffer\n");
 
     asm("mov %0, %%cr3" :: "r" (PML4));
 
-    pageTableManager_MapMemory(pageTableManager, (void*)0x600000000, (void*) 0x80000);
+    pageTableManager_MapMemory(&pageTableManager, (void*)0x600000000, (void*) 0x80000);
     uint64_t* test = (uint64_t*) 0x600000000;
     *test = 26;
 

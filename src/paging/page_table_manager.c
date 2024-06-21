@@ -6,9 +6,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-PageTableManager* pageTableManager_Create(PageTable* PLM4Address) {
-    PageTableManager* ptm;
-    ptm->PML4 = PLM4Address;
+PageTableManager pageTableManager_Create(PageTable* PLM4Address) {
+    PageTableManager ptm;
+    ptm.PML4 = PLM4Address;
     return ptm;
 }
 
