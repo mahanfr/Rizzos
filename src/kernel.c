@@ -1,4 +1,5 @@
 #include "common/uefi_data.h"
+#include "gdt/gdt.h"
 #include "graphics/basic_graphics.h"
 #include <stdint.h>
 #include <stdbool.h>
@@ -10,12 +11,7 @@
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
 
-void _start(UEFIBootData* uefiBootData) {
-    (void) BG_Init(uefiBootData);
-    BG_SetBgColor(0xFF02242b);
-    BG_ClearBg();
-    print("Hello World From Kernel!\n");
-
+static void InitializeMemory(UEFIBootData* uefiBootData) {
     // Init PageFrame Memory Mapping
     (void) PFA_InitEfiMemoryMap(
             uefiBootData->mMap,
@@ -46,6 +42,21 @@ void _start(UEFIBootData* uefiBootData) {
     }
 
     asm("mov %0, %%cr3" :: "r" (PML4));
+
+}
+
+void _start(UEFIBootData* uefiBootData) {
+    (void) BG_Init(uefiBootData);
+    BG_SetBgColor(0xFF02242b);
+    BG_ClearBg();
+    print("Hello World From Kernel!\n");
+
+    GDTDescriptor gdtDescriptor;
+    gdtDescriptor.size = sizeof(GDT) - 1;
+    gdtDescriptor.offset = (uint64_t)&g_DefaultGDT;
+    LoadGDT(&gdtDescriptor);
+
+    InitializeMemory(uefiBootData);
 
     print("Kernel Initialized.\n");
     while(true);

@@ -1,10 +1,12 @@
 CC = gcc
+ASM = nasm
 LD = ld
 MKFS = /sbin/mkfs.vfat
 
 LDS = kernel.ld
 
 CFLAGS = -ffreestanding -fshort-wchar -Wall -Wextra -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition
+ASMFLAGS =
 LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
 
 SRC_DIR = ./src
@@ -17,7 +19,9 @@ ASSETS = ./assets/zap-light16.psf
 rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
 SRC = $(call rwildcard,$(SRC_DIR),*.c)
+ASMSRC = $(call rwildcard,$(SRC_DIR),*.asm)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRC))
+OBJS += $(patsubst $(SRC_DIR)/%.asm, $(BUILD_DIR)/%_asm.o, $(ASMSRC))
 DIRS = $(wildcard $(SRC_DIR)/*)
 
 all: target-img
@@ -26,6 +30,11 @@ bootloader: always
 	$(MAKE) -C ./bootloader
 
 kernel: always $(OBJS) link
+
+$(BUILD_DIR)/%_asm.o: $(SRC_DIR)/%.asm
+	@ echo ASM $^
+	mkdir -p $(@D)
+	$(ASM) $(ASMFLAGS) $^ -felf64 -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@ echo CC $^
