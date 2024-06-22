@@ -2,8 +2,8 @@ CC = gcc
 SRC = bootloader.c
 BUILD_DIR = build
 OBJFILE = $(BUILD_DIR)/main.o
-SOFILE = $(BUILD_DIR)/main.so
-TARGET = $(BUILD_DIR)/main.efi
+SOFILE = $(BUILD_DIR)/bootx64.so
+TARGET = $(BUILD_DIR)/bootx64.efi
 
 LDINC = -Lgnu-efi/x86_64/lib -Lgnu-efi/x86_64/gnuefi
 ELF_LDS = gnu-efi/gnuefi/elf_x86_64_efi.lds

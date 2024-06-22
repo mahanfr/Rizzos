@@ -2,9 +2,9 @@
 #include "gnu-efi/inc/efidef.h"
 #include "gnu-efi/inc/efilib.h"
 #include <elf.h>
-#include "../src/common/graphics.h"
-#include "../src/common/fonts.h"
-#include "../src/common/uefi_data.h"
+#include "../rizzos/common/graphics.h"
+#include "../rizzos/common/fonts.h"
+#include "../rizzos/common/uefi_data.h"
 #include "gnu-efi/inc/x86_64/efibind.h"
 
 #ifndef LOG

@@ -1,4 +1,4 @@
-#include "common/uefi_data.h"
+#include "../common/uefi_data.h"
 #include "gdt/gdt.h"
 #include "graphics/basic_graphics.h"
 #include <stdint.h>
