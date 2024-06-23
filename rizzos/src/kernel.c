@@ -47,14 +47,24 @@ static void InitializeMemory(UEFIBootData* uefiBootData) {
     asm("mov %0, %%cr3" :: "r" (PML4));
 }
 
+static void INTH_SetFaultHandler(IDTDescEntry* idte, uint64_t pointer_func) {
+    IDT_SetOffset(idte, pointer_func);
+    idte->type_dpl_p = IDT_TDPLP_INTERRUPT_GATE;
+    idte->selector = 0x08;
+}
+
 static void InitializeInterrupts(void) {
     idtr.size = 0x0FFF;
     idtr.offset = (uint64_t) PFA_RequestPage();
 
     IDTDescEntry* int_pagefault = (IDTDescEntry*)(idtr.offset + 0xE * sizeof(IDTDescEntry));
-    IDT_SetOffset(int_pagefault, (uint64_t) INT_PageFaultHandler);
-    int_pagefault->type_dpl_p = IDT_TDPLP_INTERRUPT_GATE;
-    int_pagefault->selector = 0x08;
+    INTH_SetFaultHandler(int_pagefault, (uint64_t) INT_PageFaultHandler);
+
+    IDTDescEntry* int_doublefault = (IDTDescEntry*)(idtr.offset + 0x8 * sizeof(IDTDescEntry));
+    INTH_SetFaultHandler(int_doublefault, (uint64_t) INT_DoubleFaultHandler);
+
+    IDTDescEntry* int_gpfault = (IDTDescEntry*)(idtr.offset + 0xD * sizeof(IDTDescEntry));
+    INTH_SetFaultHandler(int_gpfault, (uint64_t) INT_GPFaultHandler);
 
     asm("lidt %0" :: "m" (idtr));
 }
@@ -74,7 +84,7 @@ void _start(UEFIBootData* uefiBootData) {
 
     InitializeInterrupts();
 
-    // asm("int $0x0e");
+    asm("int $0x0e");
 
     print("Kernel Initialized.\n");
     while(true);

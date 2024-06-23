@@ -59,6 +59,11 @@ void BG_SetCursor(uint32_t x_offset, uint32_t y_offset) {
     g_cursorPosition.y = y_offset;
 }
 
+void BG_ResetCursor(void) {
+    g_cursorPosition.x = DEFAULT_CUR_X;
+    g_cursorPosition.y = DEFAULT_CUR_Y;
+}
+
 void print(const char* fmt, ...) {
     va_list va;
     char str[512];
