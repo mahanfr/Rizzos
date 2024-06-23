@@ -3,6 +3,8 @@
 #include "graphics/basic_graphics.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "interrupts/idt.h"
+#include "interrupts/interrupts.h"
 #include "memory.h"
 #include "paging/page_frame_allocator.h"
 #include "paging/page_table_manager.h"
@@ -10,6 +12,7 @@
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
+static IDTR idtr;
 
 static void InitializeMemory(UEFIBootData* uefiBootData) {
     // Init PageFrame Memory Mapping
@@ -42,7 +45,18 @@ static void InitializeMemory(UEFIBootData* uefiBootData) {
     }
 
     asm("mov %0, %%cr3" :: "r" (PML4));
+}
 
+static void InitializeInterrupts(void) {
+    idtr.size = 0x0FFF;
+    idtr.offset = (uint64_t) PFA_RequestPage();
+
+    IDTDescEntry* int_pagefault = (IDTDescEntry*)(idtr.offset + 0xE * sizeof(IDTDescEntry));
+    IDT_SetOffset(int_pagefault, (uint64_t) INT_PageFaultHandler);
+    int_pagefault->type_dpl_p = IDT_TDPLP_INTERRUPT_GATE;
+    int_pagefault->selector = 0x08;
+
+    asm("lidt %0" :: "m" (idtr));
 }
 
 void _start(UEFIBootData* uefiBootData) {
@@ -57,6 +71,10 @@ void _start(UEFIBootData* uefiBootData) {
     LoadGDT(&gdtDescriptor);
 
     InitializeMemory(uefiBootData);
+
+    InitializeInterrupts();
+
+    // asm("int $0x0e");
 
     print("Kernel Initialized.\n");
     while(true);

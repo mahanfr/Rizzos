@@ -31,6 +31,11 @@ bootloader: always
 
 kernel: always $(OBJS) link
 
+$(BUILD_DIR)/interrupts/interrupts.o: $(SRC_DIR)/interrupts/interrupts.c
+	@ echo CC $^
+	mkdir -p $(@D)
+	$(CC) -mno-red-zone -mgeneral-regs-only -ffreestanding -c $^ -o $@
+
 $(BUILD_DIR)/%_asm.o: $(SRC_DIR)/%.asm
 	@ echo ASM $^
 	mkdir -p $(@D)

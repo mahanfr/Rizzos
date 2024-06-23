@@ -1,9 +1,9 @@
 #include "basic_graphics.h"
-#include "../common/graphics.h"
-#include "../common/uefi_data.h"
+#include "../../common/graphics.h"
+#include "../../common/uefi_data.h"
 #include <stdint.h>
 #define STB_SPRINTF_IMPLEMENTATION
-#include "../lib/stb_sprintf.h"
+#include "../../lib/stb_sprintf.h"
 #include "../memory.h"
 
 #include <stdarg.h>
@@ -67,7 +67,7 @@ void print(const char* fmt, ...) {
     va_end(va);
     char* chr = str;
     while (*chr != 0) {
-        if (g_cursorPosition.y > g_frameBuffer.height / 2) {
+        if (g_cursorPosition.y > g_frameBuffer.height) {
             clearBuffer();
         }
         switch (*chr) {
