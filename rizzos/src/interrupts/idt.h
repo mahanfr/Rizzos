@@ -24,6 +24,8 @@ typedef struct {
     uint64_t offset;
 } __attribute__((packed)) IDTR;
 
+void IDT_InitInterruptTable(void);
+IDTR IDT_GetInterruptTable(void);
 void IDT_SetOffset(IDTDescEntry* ide, uint64_t offset);
 uint64_t IDT_GetOffset(IDTDescEntry* ide);
 

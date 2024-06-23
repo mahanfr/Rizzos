@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "interrupts/idt.h"
 #include "interrupts/interrupts.h"
+#include "interrupts/interrupt_handler.h"
 #include "memory.h"
 #include "paging/page_frame_allocator.h"
 #include "paging/page_table_manager.h"
@@ -12,7 +13,6 @@
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
-static IDTR idtr;
 
 static void InitializeMemory(UEFIBootData* uefiBootData) {
     // Init PageFrame Memory Mapping
@@ -47,25 +47,14 @@ static void InitializeMemory(UEFIBootData* uefiBootData) {
     asm("mov %0, %%cr3" :: "r" (PML4));
 }
 
-static void INTH_SetFaultHandler(IDTDescEntry* idte, uint64_t pointer_func) {
-    IDT_SetOffset(idte, pointer_func);
-    idte->type_dpl_p = IDT_TDPLP_INTERRUPT_GATE;
-    idte->selector = 0x08;
-}
-
 static void InitializeInterrupts(void) {
-    idtr.size = 0x0FFF;
-    idtr.offset = (uint64_t) PFA_RequestPage();
+    IDT_InitInterruptTable();
 
-    IDTDescEntry* int_pagefault = (IDTDescEntry*)(idtr.offset + 0xE * sizeof(IDTDescEntry));
-    INTH_SetFaultHandler(int_pagefault, (uint64_t) INT_PageFaultHandler);
+    INTH_SetInterruptHandler(0xE, (uint64_t) INT_PageFaultHandler);
+    INTH_SetInterruptHandler(0x8, (uint64_t) INT_DoubleFaultHandler);
+    INTH_SetInterruptHandler(0xD, (uint64_t) INT_GPFaultHandler);
 
-    IDTDescEntry* int_doublefault = (IDTDescEntry*)(idtr.offset + 0x8 * sizeof(IDTDescEntry));
-    INTH_SetFaultHandler(int_doublefault, (uint64_t) INT_DoubleFaultHandler);
-
-    IDTDescEntry* int_gpfault = (IDTDescEntry*)(idtr.offset + 0xD * sizeof(IDTDescEntry));
-    INTH_SetFaultHandler(int_gpfault, (uint64_t) INT_GPFaultHandler);
-
+    IDTR idtr = IDT_GetInterruptTable();
     asm("lidt %0" :: "m" (idtr));
 }
 
@@ -84,7 +73,7 @@ void _start(UEFIBootData* uefiBootData) {
 
     InitializeInterrupts();
 
-    asm("int $0x0e");
+    //asm("int $0x0e");
 
     print("Kernel Initialized.\n");
     while(true);
