@@ -72,7 +72,7 @@ void print(const char* fmt, ...) {
     va_end(va);
     char* chr = str;
     while (*chr != 0) {
-        if (g_cursorPosition.y > g_frameBuffer.height) {
+        if (g_cursorPosition.y > g_frameBuffer.height - 16) {
             clearBuffer();
         }
         switch (*chr) {

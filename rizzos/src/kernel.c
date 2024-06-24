@@ -6,6 +6,7 @@
 #include "interrupts/idt.h"
 #include "interrupts/interrupts.h"
 #include "interrupts/interrupt_handler.h"
+#include "io.h"
 #include "memory.h"
 #include "paging/page_frame_allocator.h"
 #include "paging/page_table_manager.h"
@@ -53,9 +54,16 @@ static void InitializeInterrupts(void) {
     INTH_SetInterruptHandler(0xE, (uint64_t) INT_PageFaultHandler);
     INTH_SetInterruptHandler(0x8, (uint64_t) INT_DoubleFaultHandler);
     INTH_SetInterruptHandler(0xD, (uint64_t) INT_GPFaultHandler);
+    INTH_SetInterruptHandler(0x21, (uint64_t) INT_KeyboardIntHandler);
 
     IDTR idtr = IDT_GetInterruptTable();
     asm("lidt %0" :: "m" (idtr));
+
+    INT_PIC_Remap(0x20, 0x28);
+    IO_OutByte(INT_PIC1_DATA, 0b11111101);
+    IO_OutByte(INT_PIC2_DATA, 0b11111111);
+
+    asm("sti");
 }
 
 void _start(UEFIBootData* uefiBootData) {
