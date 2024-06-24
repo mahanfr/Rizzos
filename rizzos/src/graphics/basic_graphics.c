@@ -70,6 +70,35 @@ void BG_ResetCursor(void) {
     g_cursorPosition.y = DEFAULT_CUR_Y;
 }
 
+void BG_NextLine(void) {
+    g_cursorPosition.x = DEFAULT_CUR_X;
+    g_cursorPosition.y += DEFAULT_CUR_Y;
+    if (g_cursorPosition.y > g_frameBuffer.height - 16) {
+        clearBuffer();
+    }
+}
+
+void BG_PutTab(void) {
+    g_cursorPosition.x += DEFAULT_CUR_X * 4;
+    if (g_cursorPosition.x > g_frameBuffer.width) {
+        BG_NextLine();
+    }
+}
+
+void BG_ClearChar(void) {
+    if (g_cursorPosition.x > DEFAULT_CUR_X) {
+        g_cursorPosition.x -= DEFAULT_CUR_X;
+    } else {
+        return;
+    }
+    uint32_t* pixPtr = (uint32_t*) g_frameBuffer.baseAddress;
+    for (uint64_t y = g_cursorPosition.y; y < g_cursorPosition.y + 16; y++) {
+        for (uint64_t x = g_cursorPosition.x; x < g_cursorPosition.x + 8; x++) {
+            *(uint32_t*)(pixPtr + x + (y * g_frameBuffer.pixelPerScanLine)) = g_bgColor;
+        }
+    }
+}
+
 void print(const char* fmt, ...) {
     va_list va;
     char str[512];
@@ -80,11 +109,10 @@ void print(const char* fmt, ...) {
     while (*chr != 0) {
         switch (*chr) {
             case '\n':
-                g_cursorPosition.x = DEFAULT_CUR_X;
-                g_cursorPosition.y += DEFAULT_CUR_Y;
+                BG_NextLine();
                 break;
             case '\t':
-                g_cursorPosition.x += DEFAULT_CUR_X * 4;
+                BG_PutTab();
                 break;
             case '\0':
                 break;
