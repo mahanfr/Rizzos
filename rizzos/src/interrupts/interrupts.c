@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "../panic.h"
 #include "../io.h"
-#include "../graphics/basic_graphics.h"
+#include "../userinput/keyboard.h"
 
 __attribute__((interrupt)) void INT_PageFaultHandler(struct InterruptFrame* frame) {
     (void) frame;
@@ -24,8 +24,10 @@ __attribute__((interrupt)) void INT_GPFaultHandler(struct InterruptFrame* frame)
 }
 
 __attribute__((interrupt)) void INT_KeyboardIntHandler(struct InterruptFrame* frame) {
-    print("pressed!\n");
     uint8_t scan_code = IO_InByte(0x60);
+
+    UI_Handle_Keyboard(scan_code);
+
     INT_PIC_EndMaster();
 }
 

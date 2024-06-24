@@ -19,21 +19,27 @@ static uint32_t g_bgColor = 0;
 
 static void clearBuffer(void) {
     BG_ClearBg();
-    g_cursorPosition.x= DEFAULT_CUR_X;
-    g_cursorPosition.y= DEFAULT_CUR_Y;
+    BG_ResetCursor();
 }
 
-static void putChar(uint32_t color, char chr,
-        uint64_t x_offset, uint64_t y_offset) {
+void BG_PutChar(char chr) {
     uint32_t* pixPtr = (uint32_t*) g_frameBuffer.baseAddress;
     char* fontPtr = (char*) g_font.glyphBuffer + (chr * g_font.psfHeader->charsize);
-    for (uint64_t y = y_offset; y < y_offset + 16; y++) {
-        for (uint64_t x = x_offset; x < x_offset + 8; x++) {
-            if ((*fontPtr & (128 >> (x - x_offset))) > 0){
-                *(uint32_t*)(pixPtr + x + (y * g_frameBuffer.pixelPerScanLine)) = color;
+    for (uint64_t y = g_cursorPosition.y; y < g_cursorPosition.y + 16; y++) {
+        for (uint64_t x = g_cursorPosition.x; x < g_cursorPosition.x + 8; x++) {
+            if ((*fontPtr & (128 >> (x - g_cursorPosition.x))) > 0){
+                *(uint32_t*)(pixPtr + x + (y * g_frameBuffer.pixelPerScanLine)) = g_color;
             }
         }
         fontPtr++;
+    }
+    g_cursorPosition.x += DEFAULT_CUR_X;
+    if (g_cursorPosition.x > g_frameBuffer.width) {
+        g_cursorPosition.x = DEFAULT_CUR_X;
+        g_cursorPosition.y += DEFAULT_CUR_Y;
+    }
+    if (g_cursorPosition.y > g_frameBuffer.height - 16) {
+        clearBuffer();
     }
 }
 
@@ -72,9 +78,6 @@ void print(const char* fmt, ...) {
     va_end(va);
     char* chr = str;
     while (*chr != 0) {
-        if (g_cursorPosition.y > g_frameBuffer.height - 16) {
-            clearBuffer();
-        }
         switch (*chr) {
             case '\n':
                 g_cursorPosition.x = DEFAULT_CUR_X;
@@ -86,13 +89,8 @@ void print(const char* fmt, ...) {
             case '\0':
                 break;
             default:
-                putChar(g_color, *chr, g_cursorPosition.x, g_cursorPosition.y);
-                g_cursorPosition.x += DEFAULT_CUR_X;
+                BG_PutChar(*chr);
                 break;
-        }
-        if (g_cursorPosition.x > g_frameBuffer.width) {
-            g_cursorPosition.x = DEFAULT_CUR_X;
-            g_cursorPosition.y += DEFAULT_CUR_Y;
         }
         chr++;
     }
