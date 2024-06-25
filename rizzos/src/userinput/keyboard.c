@@ -20,7 +20,7 @@ void UI_Handle_Keyboard(uint8_t scancode) {
             g_IsRightShiftPressed = true;
             return;
         case UI_KB_RIGHT_SHIFT + 0x80:
-            g_IsRightShiftPressed = true;
+            g_IsRightShiftPressed = false;
             return;
         case UI_KB_ENTER:
             BG_NextLine();
@@ -33,7 +33,7 @@ void UI_Handle_Keyboard(uint8_t scancode) {
             return;
     }
 
-    char ascii = UI_KB_QWERTY_Translate(scancode, g_IsLeftShiftPressed || g_IsRightShiftPressed);
+    char ascii = UI_KB_QWERTY_Translate(scancode, g_IsLeftShiftPressed | g_IsRightShiftPressed);
 
     if (ascii != 0) {
        BG_PutChar(ascii);
