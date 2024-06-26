@@ -11,6 +11,7 @@
 #include "paging/page_frame_allocator.h"
 #include "paging/page_table_manager.h"
 #include "paging/paging.h"
+#include "userinput/mouse.h"
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
@@ -55,15 +56,12 @@ static void InitializeInterrupts(void) {
     INTH_SetInterruptHandler(0x8, (uint64_t) INT_DoubleFaultHandler);
     INTH_SetInterruptHandler(0xD, (uint64_t) INT_GPFaultHandler);
     INTH_SetInterruptHandler(0x21, (uint64_t) INT_KeyboardIntHandler);
+    INTH_SetInterruptHandler(0x2C, (uint64_t) INT_MouseIntHandler);
 
     IDTR idtr = IDT_GetInterruptTable();
     asm("lidt %0" :: "m" (idtr));
 
     INT_PIC_Remap(0x20, 0x28);
-    IO_OutByte(INT_PIC1_DATA, 0b11111101);
-    IO_OutByte(INT_PIC2_DATA, 0b11111111);
-
-    asm("sti");
 }
 
 void _start(UEFIBootData* uefiBootData) {
@@ -81,8 +79,16 @@ void _start(UEFIBootData* uefiBootData) {
 
     InitializeInterrupts();
 
-    //asm("int $0x0e");
+    UI_PS2Mouse_Init();
+    IO_OutByte(INT_PIC1_DATA, 0b11111001);
+    IO_OutByte(INT_PIC2_DATA, 0b11101111);
+    asm("sti");
 
     print("Kernel Initialized.\n");
+
+    while (true) {
+        UI_PS2Mouse_ProcessPacket();
+    }
+
     while(true);
 }

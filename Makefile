@@ -5,7 +5,7 @@ MKFS = /sbin/mkfs.vfat
 
 LDS = rizzos/kernel.ld
 
-CFLAGS = -ffreestanding -fshort-wchar -Wall -Wextra -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition
+CFLAGS = -ffreestanding -fshort-wchar -Wall -Wextra -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition -mno-red-zone 
 ASMFLAGS =
 LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
 
@@ -50,9 +50,9 @@ link:
 	@ echo Linking object files..
 	$(LD) $(LDFLAGS) -o $(KERNEL) $(OBJS)
 
-base-img:
+base-img: always
 ifeq (,$(wildcard $(TARGET)))
-	dd if=/dev/zero of=$^ bs=512 count=93750
+	dd if=/dev/zero of=$(TARGET) bs=512 count=93750
 endif
 
 target-img: base-img bootloader kernel

@@ -11,8 +11,8 @@ typedef struct {
 } FrameBuffer;
 
 typedef struct {
-    uint32_t x;
-    uint32_t y;
+     long x;
+     long y;
 } Point;
 
 #endif

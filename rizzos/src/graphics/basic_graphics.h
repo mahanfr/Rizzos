@@ -13,6 +13,8 @@ void BG_PutChar(char chr);
 void BG_NextLine(void);
 void BG_PutTab(void);
 void BG_ClearChar(void);
+uint32_t BG_GetScreenWidth(void);
+uint32_t BG_GetScreenHeight(void);
 void print(const char* fmt, ...);
 
 #endif

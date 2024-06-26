@@ -60,6 +60,14 @@ void BG_ClearBg(void) {
     MEM_Set32(g_frameBuffer.baseAddress, g_bgColor, g_frameBuffer.bufferSize);
 }
 
+uint32_t BG_GetScreenWidth(void) {
+    return g_frameBuffer.width;
+}
+
+uint32_t BG_GetScreenHeight(void) {
+    return g_frameBuffer.height;
+}
+
 void BG_SetCursor(uint32_t x_offset, uint32_t y_offset) {
     g_cursorPosition.x = x_offset;
     g_cursorPosition.y = y_offset;

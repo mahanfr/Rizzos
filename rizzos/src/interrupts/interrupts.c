@@ -4,6 +4,7 @@
 #include "../panic.h"
 #include "../io.h"
 #include "../userinput/keyboard.h"
+#include "../userinput/mouse.h"
 
 __attribute__((interrupt)) void INT_PageFaultHandler(struct InterruptFrame* frame) {
     (void) frame;
@@ -29,6 +30,14 @@ __attribute__((interrupt)) void INT_KeyboardIntHandler(struct InterruptFrame* fr
     UI_Handle_Keyboard(scan_code);
 
     INT_PIC_EndMaster();
+}
+
+__attribute__((interrupt)) void INT_MouseIntHandler(struct InterruptFrame* frame) {
+    uint8_t mouse_data = IO_InByte(0x60);
+    
+    UI_PS2Mouse_Handle(mouse_data);
+
+    INT_PIC_EndSlave();
 }
 
 void INT_PIC_Disable(void) {
