@@ -7,5 +7,6 @@ qemu-system-x86_64 -cpu qemu64 \
     -drive if=pflash,format=raw,unit=1,file=./bootloader/OVMFbin/OVMF_VARS-pure-efi.fd \
     -drive file=./build/rizzos.img \
     -net none -m 256M \
-    -k en-us
-    # -display sdl -vga none -device virtio-vga,xres=800,yres=600
+    -k en-us \
+    -display sdl,gl=on \
+    -vga none -device virtio-vga-gl

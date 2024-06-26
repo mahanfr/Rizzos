@@ -86,9 +86,5 @@ void _start(UEFIBootData* uefiBootData) {
 
     print("Kernel Initialized.\n");
 
-    while (true) {
-        UI_PS2Mouse_ProcessPacket();
-    }
-
     while(true);
 }

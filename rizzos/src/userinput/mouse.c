@@ -48,6 +48,14 @@ static uint8_t g_MouseCycle = 0;
 static uint8_t g_MousePacket[4];
 static bool g_IsMousePacketReady = false;
 void UI_PS2Mouse_Handle(uint8_t data) {
+
+    UI_PS2Mouse_ProcessPacket();
+    static bool skip = true;
+    if (skip) {
+        skip = false;
+        return;
+    }
+
     switch(g_MouseCycle) {
         case 0:
             if (g_IsMousePacketReady) break;
@@ -145,27 +153,6 @@ void UI_PS2Mouse_Init(void) {
     MouseWaitInput();
     MouseRead();
   
-    // setting scaling
-    MouseWrite(0xE7);
-    MouseWaitInput();
-    MouseRead();
-
-    // setting resolution
-    MouseWrite(0xE8);
-    MouseWaitInput();
-    MouseRead();
-    MouseWrite(0b11);
-    MouseWaitInput();
-    MouseRead();
-
-    // Setting the sample rate to 100
-    MouseWrite(0xF3);
-    MouseWaitInput();
-    MouseRead();
-    MouseWrite(100);
-    MouseWaitInput();
-    MouseRead();
-
     MouseWrite(0xF4);
     MouseWaitInput();
     MouseRead();
