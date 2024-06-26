@@ -5,6 +5,7 @@
 #define STB_SPRINTF_IMPLEMENTATION
 #include "../../lib/stb_sprintf.h"
 #include "../memory.h"
+#include "../userinput/mouse.h"
 
 #include <stdarg.h>
 #define WHITE 0xFFFFFFFF
@@ -16,6 +17,7 @@ static FrameBuffer g_frameBuffer;
 static PSF1_FONT g_font;
 static uint32_t g_color = WHITE;
 static uint32_t g_bgColor = 0;
+static Point g_last_mouse_cur_pos = {0};
 
 static void clearBuffer(void) {
     BG_ClearBg();
@@ -105,6 +107,42 @@ void BG_ClearChar(void) {
             *(uint32_t*)(pixPtr + x + (y * g_frameBuffer.pixelPerScanLine)) = g_bgColor;
         }
     }
+}
+
+static void ClearLastMouseCurPos() {
+    uint32_t* pixPtr = (uint32_t*) g_frameBuffer.baseAddress;
+    for (uint64_t y = 0; y < MOUSE_POINTER_HEIGHT; y++) {
+        for (uint64_t x = 0; x < MOUSE_POINTER_WIDTH; x++) {
+            *(uint32_t*)(pixPtr
+                    + (x + g_last_mouse_cur_pos.x)
+                    + ((y + g_last_mouse_cur_pos.y) * g_frameBuffer.pixelPerScanLine))
+                = g_bgColor;
+        }
+    }
+}
+
+void BG_DrawCursor(uint32_t x_offset, uint32_t y_offset) {
+    ClearLastMouseCurPos();
+    uint32_t* pixPtr = (uint32_t*) g_frameBuffer.baseAddress;
+    for (uint64_t y = 0; y < MOUSE_POINTER_HEIGHT; y++) {
+        for (uint64_t x = 0; x < MOUSE_POINTER_WIDTH; x++) {
+            uint32_t pix_color;
+            uint32_t index = x + (y * MOUSE_POINTER_WIDTH);
+            if (UI_MousePointer[index] == 0)
+                continue;
+            else if (UI_MousePointer[index] == 1) {
+                pix_color = 0xFFFFFFFF;
+            } else {
+                pix_color = 0;
+            }
+            *(uint32_t*)(pixPtr 
+                    + (x + x_offset) 
+                    + ((y + y_offset) * g_frameBuffer.pixelPerScanLine))
+                = pix_color;
+        }
+    }
+    g_last_mouse_cur_pos.x = x_offset;
+    g_last_mouse_cur_pos.y = y_offset;
 }
 
 void print(const char* fmt, ...) {

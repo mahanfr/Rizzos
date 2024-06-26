@@ -13,6 +13,27 @@
 #define PS2XOverflow 0b01000000
 #define PS2YOverflow 0b10000000
 
+uint8_t UI_MousePointer[] = {
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0,
+    1, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0,
+    1, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0,
+    1, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0,
+    1, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0,
+    1, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1,
+    1, 2, 2, 2, 1, 2, 2, 1, 0, 0, 0,
+    1, 2, 2, 1, 0, 1, 2, 2, 1, 0, 0,
+    1, 2, 1, 0, 0, 1, 2, 2, 1, 0, 0,
+    1, 1, 0, 0, 0, 0, 1, 2, 2, 1, 0,
+    0, 0, 0, 0, 0, 0, 1, 2, 2, 1, 0,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
+};
+
 static void MouseWait(void) {
     uint64_t timeout = 100000;
     while(timeout--) {
@@ -127,8 +148,9 @@ void UI_PS2Mouse_ProcessPacket(void) {
         MousePosition.y = BG_GetScreenHeight() - 16;
     }
 
-    BG_SetCursor(MousePosition.x, MousePosition.y);
-    BG_PutChar('a');
+    // BG_SetCursor(MousePosition.x, MousePosition.y);
+    // BG_PutChar('a');
+    BG_DrawCursor(MousePosition.x, MousePosition.y);
     //print("%d - %d\n", MousePosition.x, MousePosition.y);
 
     g_IsMousePacketReady = false;
