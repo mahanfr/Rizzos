@@ -122,6 +122,12 @@ static void ClearLastMouseCurPos() {
 }
 
 void BG_DrawCursor(uint32_t x_offset, uint32_t y_offset) {
+    if (x_offset > (g_frameBuffer.width - MOUSE_POINTER_WIDTH)) {
+        x_offset = g_frameBuffer.width - MOUSE_POINTER_WIDTH - 1;
+    }
+    if (y_offset > (g_frameBuffer.height - MOUSE_POINTER_HEIGHT)) {
+        y_offset = g_frameBuffer.height - MOUSE_POINTER_HEIGHT - 1;
+    }
     ClearLastMouseCurPos();
     uint32_t* pixPtr = (uint32_t*) g_frameBuffer.baseAddress;
     for (uint64_t y = 0; y < MOUSE_POINTER_HEIGHT; y++) {
@@ -135,8 +141,8 @@ void BG_DrawCursor(uint32_t x_offset, uint32_t y_offset) {
             } else {
                 pix_color = 0;
             }
-            *(uint32_t*)(pixPtr 
-                    + (x + x_offset) 
+            *(uint32_t*)(pixPtr
+                    + (x + x_offset)
                     + ((y + y_offset) * g_frameBuffer.pixelPerScanLine))
                 = pix_color;
         }

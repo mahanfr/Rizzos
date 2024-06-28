@@ -1,8 +1,8 @@
+#include <stdint.h>
+#include <stdbool.h>
 #include "../common/uefi_data.h"
 #include "gdt/gdt.h"
 #include "graphics/basic_graphics.h"
-#include <stdint.h>
-#include <stdbool.h>
 #include "interrupts/idt.h"
 #include "interrupts/interrupts.h"
 #include "interrupts/interrupt_handler.h"
