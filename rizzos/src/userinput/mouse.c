@@ -98,7 +98,10 @@ void UI_PS2Mouse_Handle(uint8_t data) {
     }
 }
 
-static Point MousePosition;
+static Point MousePosition = {
+    .x = 100,
+    .y = 100,
+};
 void UI_PS2Mouse_ProcessPacket(void) {
     if (!g_IsMousePacketReady) return;
     

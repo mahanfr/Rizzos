@@ -41,15 +41,16 @@ void PFA_InitEfiMemoryMap(EFIMemoryDescriptor *mmap, size_t desc_entries, size_t
 
     InitBitmap(bitmap_size, largest_free_mem);
 
-    PFA_LockPages(&g_pageBitmap.buffer, g_pageBitmap.size / 4096 + 1);
-
+    ReservePages(0, (total_memory_size / MEM_FRAME_SIZE) + 1);
     for(size_t i = 0; i < desc_entries; i++) {
         EFIMemoryDescriptor* desc = (EFIMemoryDescriptor*)
             ((uint64_t)mmap + (i * desc_size));
-        if(desc->type != 7) {
-            ReservePages(desc->physAddr, desc->numPages);
+        if(desc->type == 7) {
+            UnreservePages(desc->physAddr, desc->numPages);
         }
     }
+    ReservePages(0, 0x100);
+    PFA_LockPages(&g_pageBitmap.buffer, g_pageBitmap.size / MEM_FRAME_SIZE + 1);
 }
 
 void* PFA_RequestPage(void) {
