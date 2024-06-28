@@ -109,6 +109,7 @@ void BG_ClearChar(void) {
     }
 }
 
+static uint32_t g_MouseLastCursorBuffer[MOUSE_POINTER_HEIGHT * MOUSE_POINTER_WIDTH];
 static void ClearLastMouseCurPos() {
     uint32_t* pixPtr = (uint32_t*) g_frameBuffer.baseAddress;
     for (uint64_t y = 0; y < MOUSE_POINTER_HEIGHT; y++) {
@@ -116,7 +117,7 @@ static void ClearLastMouseCurPos() {
             *(uint32_t*)(pixPtr
                     + (x + g_last_mouse_cur_pos.x)
                     + ((y + g_last_mouse_cur_pos.y) * g_frameBuffer.pixelPerScanLine))
-                = g_bgColor;
+                = g_MouseLastCursorBuffer[x + (y * MOUSE_POINTER_WIDTH)];
         }
     }
 }
@@ -134,6 +135,11 @@ void BG_DrawCursor(uint32_t x_offset, uint32_t y_offset) {
         for (uint64_t x = 0; x < MOUSE_POINTER_WIDTH; x++) {
             uint32_t pix_color;
             uint32_t index = x + (y * MOUSE_POINTER_WIDTH);
+            uint32_t* pixel = (uint32_t*)(pixPtr
+                    + (x + x_offset)
+                    + ((y + y_offset) * g_frameBuffer.pixelPerScanLine));
+            g_MouseLastCursorBuffer[index] = *pixel;
+
             if (UI_MousePointer[index] == 0)
                 continue;
             else if (UI_MousePointer[index] == 1) {
@@ -141,10 +147,7 @@ void BG_DrawCursor(uint32_t x_offset, uint32_t y_offset) {
             } else {
                 pix_color = 0;
             }
-            *(uint32_t*)(pixPtr
-                    + (x + x_offset)
-                    + ((y + y_offset) * g_frameBuffer.pixelPerScanLine))
-                = pix_color;
+            *pixel = pix_color;
         }
     }
     g_last_mouse_cur_pos.x = x_offset;
