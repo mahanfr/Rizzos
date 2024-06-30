@@ -1,4 +1,5 @@
 #include "gnu-efi/inc/efi.h"
+#include "gnu-efi/inc/efiapi.h"
 #include "gnu-efi/inc/efidef.h"
 #include "gnu-efi/inc/efilib.h"
 #include <elf.h>
@@ -180,6 +181,13 @@ Elf64_Phdr* ReadElfProgramHeader(EFI_FILE *kernel, Elf64_Ehdr* header) {
 
 }
 
+UINTN Strcmp(CHAR8 *a, CHAR8 *b, UINTN lenght) {
+    for (UINTN i = 0; i < lenght; i++) {
+        if (*(a + i) != *(b + i)) return 0;
+    }
+    return 1;
+}
+
 EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     InitializeLib(ImageHandle, SystemTable);
     Print(L"Bootloader Started!\n\r");
@@ -253,11 +261,18 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     EFI_MEMORY_DESCRIPTOR* map = LibMemoryMap(&noEntries, &mapKey, &descriptorSize, &descriptorVersion);
     if (map == NULL) {
         Print(L"Memory Mapping Failed!");
-    } else {
-        Print(L"noEntries: %d\n", noEntries);
-        Print(L"mapkey: %d\n", mapKey);
-        Print(L"version: %d\n", descriptorVersion);
-        Print(L"dec_size: %d\n", descriptorSize);
+    }
+    
+    EFI_CONFIGURATION_TABLE* configTable = SystemTable->ConfigurationTable;
+    void* rsdp = NULL;
+    EFI_GUID Acpi2TableGuid = ACPI_20_TABLE_GUID;
+    for (UINTN index = 0; index < SystemTable->NumberOfTableEntries; index++) {
+        if (CompareGuid(&configTable[index].VendorGuid, &Acpi2TableGuid)) {
+            if( Strcmp((CHAR8*) "RSD PTR ", (CHAR8*) configTable->VendorTable, 8)) {
+                rsdp = (void*)configTable->VendorTable;
+            }
+        }
+        configTable++;
     }
 
     void (*KernelStart)(UEFIBootData*) = ((__attribute__((sysv_abi)) void (*)(UEFIBootData*) ) header->e_entry);
@@ -269,6 +284,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     uefiBootData->mMapSize = noEntries * descriptorSize;
     uefiBootData->mMapDescSize = descriptorSize;
     uefiBootData->mMapEntries = noEntries;
+    uefiBootData->rsdp = rsdp;
 
     SystemTable->BootServices->ExitBootServices(ImageHandle, mapKey);
 

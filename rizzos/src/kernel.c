@@ -87,10 +87,5 @@ void _start(UEFIBootData* uefiBootData) {
 
     print("Kernel Initialized.\n");
 
-    CpuInfo cpuinfo = SysInfo_GetCpuInfo();
-    print("%s \n", cpuinfo.manufacturerID);
-    print("%X \n", cpuinfo.hfp);
-    print("Has SSE4.1: %s\n", SysInfo_IsFeatureAvailable(SYSINFO_CPUF_SSE41) ? "true" : "false");
-
     while(true);
 }
