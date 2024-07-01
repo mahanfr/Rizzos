@@ -12,7 +12,6 @@
 #include "paging/page_table_manager.h"
 #include "paging/paging.h"
 #include "userinput/mouse.h"
-#include "sysinfo/cpu.h"
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
@@ -86,6 +85,8 @@ void _start(UEFIBootData* uefiBootData) {
     asm("sti");
 
     print("Kernel Initialized.\n");
+
+    print("%X\n", (uint64_t) uefiBootData->rsdp);
 
     while(true);
 }

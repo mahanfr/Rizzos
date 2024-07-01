@@ -262,7 +262,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
     if (map == NULL) {
         Print(L"Memory Mapping Failed!");
     }
-    
+
     EFI_CONFIGURATION_TABLE* configTable = SystemTable->ConfigurationTable;
     void* rsdp = NULL;
     EFI_GUID Acpi2TableGuid = ACPI_20_TABLE_GUID;

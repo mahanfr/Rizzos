@@ -5,6 +5,7 @@
 #include "graphics.h"
 #include <stdint.h>
 #include "../src/uefi_memory.h"
+#include "rsdp.h"
 
 typedef struct {
     FrameBuffer* frameBuffer;
@@ -13,7 +14,7 @@ typedef struct {
     uint64_t mMapSize;
     uint64_t mMapDescSize;
     uint64_t mMapEntries;
-    void* rsdp;
+    RSDP2* rsdp;
 } UEFIBootData;
 
 #endif
