@@ -11,6 +11,7 @@
 #include "paging/page_frame_allocator.h"
 #include "paging/page_table_manager.h"
 #include "paging/paging.h"
+#include "pci.h"
 #include "userinput/mouse.h"
 #include "acpi.h"
 
@@ -69,10 +70,12 @@ void InitializeACPI(UEFIBootData* uefiBootData) {
     SDTHeader* xsdt = (SDTHeader*)(uefiBootData->rsdp->XSDTAddress);
     MCFGHeader* mcfg = (MCFGHeader*) ACPI_FindTable(xsdt, (char*) "MCFG");
 
-    print("MCFG: %X\n", (uint64_t) mcfg);
-    for(int i=0; i< 4; i++) {
-        BG_PutChar(mcfg->header.signature[i]);
-    }
+    // print("MCFG: %X\n", (uint64_t) mcfg);
+    // for(int i=0; i< 4; i++) {
+    //     BG_PutChar(mcfg->header.signature[i]);
+    // }
+
+    PCI_EnumeratePCI(mcfg);
 }
 
 void _start(UEFIBootData* uefiBootData) {
