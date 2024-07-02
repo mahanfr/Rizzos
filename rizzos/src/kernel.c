@@ -12,6 +12,7 @@
 #include "paging/page_table_manager.h"
 #include "paging/paging.h"
 #include "userinput/mouse.h"
+#include "acpi.h"
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
@@ -64,6 +65,16 @@ static void InitializeInterrupts(void) {
     INT_PIC_Remap(0x20, 0x28);
 }
 
+void InitializeACPI(UEFIBootData* uefiBootData) {
+    SDTHeader* xsdt = (SDTHeader*)(uefiBootData->rsdp->XSDTAddress);
+    MCFGHeader* mcfg = (MCFGHeader*) ACPI_FindTable(xsdt, (char*) "MCFG");
+
+    print("MCFG: %X\n", (uint64_t) mcfg);
+    for(int i=0; i< 4; i++) {
+        BG_PutChar(mcfg->header.signature[i]);
+    }
+}
+
 void _start(UEFIBootData* uefiBootData) {
     (void) BG_Init(uefiBootData);
     BG_SetBgColor(0xFF02242b);
@@ -80,13 +91,14 @@ void _start(UEFIBootData* uefiBootData) {
     InitializeInterrupts();
 
     UI_PS2Mouse_Init();
+
+    InitializeACPI(uefiBootData);
+
     IO_OutByte(INT_PIC1_DATA, 0b11111001);
     IO_OutByte(INT_PIC2_DATA, 0b11101111);
     asm("sti");
 
     print("Kernel Initialized.\n");
-
-    print("%X\n", (uint64_t) uefiBootData->rsdp);
 
     while(true);
 }
