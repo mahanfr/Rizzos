@@ -19,6 +19,14 @@ typedef struct {
     uint64_t reserved;
 } __attribute__((packed)) MCFGHeader;
 
+typedef struct {
+        uint64_t baseAddress;
+        uint16_t PCISegGroup;
+        uint8_t startBus;
+        uint8_t endBus;
+        uint32_t reserved;
+}__attribute__((packed)) DeviceConfig;
+
 void* ACPI_FindTable(SDTHeader* sdtHeader, char* signature);
 
 #endif
