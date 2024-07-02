@@ -6,9 +6,9 @@ typedef struct {
     PageTable* PML4;
 } PageTableManager;
 
-PageTableManager PTM_Create(PageTable* PLM4Address);
+void PTM_Create(PageTable* PLM4Address);
 
-void PTM_MapMemory(PageTableManager* ptm, void* virtualMemory, void* physicalMemory);
+void PTM_MapMemory(void* virtualMemory, void* physicalMemory);
 
 #endif
 

@@ -6,17 +6,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-PageTableManager PTM_Create(PageTable* PLM4Address) {
-    PageTableManager ptm;
-    ptm.PML4 = PLM4Address;
-    return ptm;
+static PageTableManager g_pageTableManager;
+
+void PTM_Create(PageTable* PLM4Address) {
+    g_pageTableManager.PML4 = PLM4Address;
 }
 
-void PTM_MapMemory(PageTableManager* ptm, void* virtualMemory, void* physicalMemory) {
+void PTM_MapMemory(void* virtualMemory, void* physicalMemory) {
     PageMapIndexer* indexer = PMI_Create((uint64_t) virtualMemory);
     PageDirEntry pde;
 
-    pde = ptm->PML4->entries[indexer->PDP_i];
+    pde = g_pageTableManager.PML4->entries[indexer->PDP_i];
     PageTable* pdp;
     if(!PDE_GetFlag(&pde, PT_PRESENT)) {
         pdp = (PageTable*) PFA_RequestPage();
@@ -24,7 +24,7 @@ void PTM_MapMemory(PageTableManager* ptm, void* virtualMemory, void* physicalMem
         PDE_SetAddress(&pde, (uint64_t) pdp >> 12);
         PDE_SetFlag(&pde, PT_PRESENT, true);
         PDE_SetFlag(&pde, PT_READWRITE, true);
-        ptm->PML4->entries[indexer->PDP_i] = pde;
+        g_pageTableManager.PML4->entries[indexer->PDP_i] = pde;
     } else {
         pdp = (PageTable*)((uint64_t)PDE_GetAddress(&pde) << 12);
     }

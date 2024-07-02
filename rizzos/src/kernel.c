@@ -33,18 +33,18 @@ static void InitializeMemory(UEFIBootData* uefiBootData) {
     // Create a PageTableManager
     PageTable* PML4 = (PageTable*) PFA_RequestPage();
     MEM_Set64(PML4, 0, MEM_FRAME_SIZE);
-    PageTableManager pageTableManager = PTM_Create(PML4);
+    (void) PTM_Create(PML4);
 
     // Map All the Pages of Memory to thire Virtual Memory
     uint64_t memorySize = MEM_GetTotalSize(uefiBootData->mMap, uefiBootData->mMapEntries, uefiBootData->mMapDescSize);
     for(uint64_t i = 0; i < memorySize; i+= MEM_FRAME_SIZE) {
-        PTM_MapMemory(&pageTableManager, (void*)i, (void*)i);
+        PTM_MapMemory((void*)i, (void*)i);
     }
     // Map All the Pages of Memory to thire Virtual Memory
     for(uint64_t i = (uint64_t) uefiBootData->frameBuffer->baseAddress;
             i < (uint64_t)uefiBootData->frameBuffer->baseAddress + uefiBootData->frameBuffer->bufferSize;
             i+= MEM_FRAME_SIZE) {
-        PTM_MapMemory(&pageTableManager, (void*)i, (void*)i);
+        PTM_MapMemory((void*)i, (void*)i);
     }
 
     asm("mov %0, %%cr3" :: "r" (PML4));
