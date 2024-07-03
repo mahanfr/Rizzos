@@ -8,6 +8,7 @@
 #include "interrupts/interrupt_handler.h"
 #include "io.h"
 #include "memory.h"
+#include "memory/heap.h"
 #include "paging/page_frame_allocator.h"
 #include "paging/page_table_manager.h"
 #include "paging/paging.h"
@@ -70,11 +71,6 @@ void InitializeACPI(UEFIBootData* uefiBootData) {
     SDTHeader* xsdt = (SDTHeader*)(uefiBootData->rsdp->XSDTAddress);
     MCFGHeader* mcfg = (MCFGHeader*) ACPI_FindTable(xsdt, (char*) "MCFG");
 
-    // print("MCFG: %X\n", (uint64_t) mcfg);
-    // for(int i=0; i< 4; i++) {
-    //     BG_PutChar(mcfg->header.signature[i]);
-    // }
-
     PCI_EnumeratePCI(mcfg);
 }
 
@@ -90,6 +86,8 @@ void _start(UEFIBootData* uefiBootData) {
     LoadGDT(&gdtDescriptor);
 
     InitializeMemory(uefiBootData);
+
+    (void) MEM_InitializeHeap((void*) 0x0000100000000000, 0x10);
 
     InitializeInterrupts();
 
