@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../common/uefi_data.h"
 #include "gdt/gdt.h"
 #include "graphics/basic_graphics.h"
