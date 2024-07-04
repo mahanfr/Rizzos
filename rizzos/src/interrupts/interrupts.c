@@ -5,6 +5,7 @@
 #include "../io.h"
 #include "../userinput/keyboard.h"
 #include "../userinput/mouse.h"
+#include "../scheduling/pit.h"
 
 __attribute__((interrupt)) void INT_PageFaultHandler(struct InterruptFrame* frame) {
     (void) frame;
@@ -38,6 +39,11 @@ __attribute__((interrupt)) void INT_MouseIntHandler(struct InterruptFrame* frame
     UI_PS2Mouse_Handle(mouse_data);
 
     INT_PIC_EndSlave();
+}
+
+__attribute__((interrupt)) void INT_PIT_Handler(struct InterruptFrame* frame) {
+    PIT_Tick();
+    INT_PIC_EndMaster();
 }
 
 void INT_PIC_Disable(void) {

@@ -27,6 +27,7 @@ __attribute__((interrupt)) void INT_DoubleFaultHandler(struct InterruptFrame* fr
 __attribute__((interrupt)) void INT_GPFaultHandler(struct InterruptFrame* frame);
 __attribute__((interrupt)) void INT_KeyboardIntHandler(struct InterruptFrame* frame);
 __attribute__((interrupt)) void INT_MouseIntHandler(struct InterruptFrame* frame);
+__attribute__((interrupt)) void INT_PIT_Handler(struct InterruptFrame* frame);
 
 void INT_PIC_Remap(uint32_t offset0, uint32_t offser1);
 void INT_PIC_Disable(void);

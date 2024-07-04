@@ -14,6 +14,7 @@
 #include "paging/page_table_manager.h"
 #include "paging/paging.h"
 #include "pci.h"
+#include "scheduling/pit.h"
 #include "userinput/mouse.h"
 #include "acpi.h"
 
@@ -61,6 +62,8 @@ static void InitializeInterrupts(void) {
     INTH_SetInterruptHandler(0xD, (uint64_t) INT_GPFaultHandler);
     INTH_SetInterruptHandler(0x21, (uint64_t) INT_KeyboardIntHandler);
     INTH_SetInterruptHandler(0x2C, (uint64_t) INT_MouseIntHandler);
+    INTH_SetInterruptHandler(0x20, (uint64_t) INT_PIT_Handler);
+    PIT_SetDivisor(2000);
 
     IDTR idtr = IDT_GetInterruptTable();
     asm("lidt %0" :: "m" (idtr));
@@ -96,11 +99,16 @@ void _start(UEFIBootData* uefiBootData) {
 
     InitializeACPI(uefiBootData);
 
-    IO_OutByte(INT_PIC1_DATA, 0b11111001);
+    IO_OutByte(INT_PIC1_DATA, 0b11111000);
     IO_OutByte(INT_PIC2_DATA, 0b11101111);
     asm("sti");
 
     print("Kernel Initialized.\n");
+
+    for(int i=0; i < 500; i++) {
+        print("A");
+        PIT_Sleepd(1.0);
+    }
 
     while(true);
 }
