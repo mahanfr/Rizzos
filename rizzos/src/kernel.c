@@ -105,10 +105,7 @@ void _start(UEFIBootData* uefiBootData) {
 
     print("Kernel Initialized.\n");
 
-    for(int i=0; i < 500; i++) {
-        print("A");
-        PIT_Sleepd(1.0);
+    while(true) {
+        asm ("hlt");
     }
-
-    while(true);
 }
