@@ -25,7 +25,25 @@
 ## About Project
 RizzOS is a Small and lightweight Operation system (Riz meaning samll in persian) Kernal Implemented from scratch and booting from a custom bootloader built on top of the Intel UEFI api.
 
-# Contributing
+## Project Progress
+These features have been planned to be implemented:
+
+[X] UEFI Bootloader
+[X] Basic graphics (simple font renderer and text visualization)
+[X] Memory Maps and Page Frame Allocator/Manager
+[X] Mapping Physical to Virtual Memory
+[X] Global Descriptor Table
+[X] Interupt Descriptor Table
+[X] Kernel Panic Screen
+[X] PS/2 Mouse and Keyboard Support
+[X] PCI and expanding the Peripheral Components Tree
+[X] Heap Memory Allocation
+[X] PIT timer and sleep functions
+[ ] AHCI and handeling SATA devices
+[ ] Simple graphical interface
+[ ] Simple File manager
+
+## Contributing
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
