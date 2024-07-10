@@ -1,5 +1,6 @@
 #include "pci.h"
 #include "acpi.h"
+#include "ahci/ahci.h"
 #include "paging/page_table_manager.h"
 #include "graphics/basic_graphics.h"
 #include <stdint.h>
@@ -15,6 +16,12 @@ static void EnumerateFunction(uint64_t deviceAddress, uint64_t func) {
     if (pciDeviceHeader->deviceID == 0xFFFF) return;
 
     print("venderID: %X, DeviceID: %d\n", pciDeviceHeader->vendorID, pciDeviceHeader->deviceID);
+
+    if (pciDeviceHeader->Class == 0x01 &&
+            pciDeviceHeader->subclass == 0x06 &&
+            pciDeviceHeader->progIF == 0x01) {
+        (void) AHCI_AHCIDriver(pciDeviceHeader);
+    }
 }
 
 static void EnumerateDevice(uint64_t busAddress, uint64_t device) {

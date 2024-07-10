@@ -50,7 +50,12 @@ typedef struct  {
     HBAPort ports[1];
 } HBAMemory;
 
-void AHCI_AHCIDriverInit(PCIDeviceHeader* pciBaseAddress);
-void AHCI_AHCIDriverProbePorts(PCIDeviceHeader* pciBaseAddress);
+typedef struct {
+    PCIDeviceHeader* pciBaseAddress;
+    HBAMemory* abar;
+} AHCIDriver;
+
+AHCIDriver AHCI_AHCIDriver(PCIDeviceHeader* pciBaseAddress);
+void AHCI_AHCIDriver_ProbePorts(AHCIDriver* self);
 
 #endif
