@@ -4,11 +4,11 @@
 #include "../pci.h"
 
 enum AHCI_PortType {
-    ACHI_PT_None = 0,
-    ACHI_PT_SATA = 1,
-    ACHI_PT_SEMB = 2,
-    ACHI_PT_PM = 3,
-    ACHI_PT_SATAPI = 4,
+    AHCI_PT_None = 0,
+    AHCI_PT_SATA = 1,
+    AHCI_PT_SEMB = 2,
+    AHCI_PT_PM = 3,
+    AHCI_PT_SATAPI = 4,
 };
 
 typedef struct {
