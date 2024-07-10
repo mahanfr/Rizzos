@@ -2,6 +2,7 @@
 #define _AHCI_H_
 
 #include "../pci.h"
+#include <stdint.h>
 
 enum AHCI_PortType {
     AHCI_PT_None = 0,
@@ -51,8 +52,40 @@ typedef struct  {
 } HBAMemory;
 
 typedef struct {
+    uint8_t commandFISLength:5;
+    uint8_t atapi:1;
+    uint8_t write:1;
+    uint8_t prefetchable:1;
+
+    uint8_t reset:1;
+    uint8_t bist:1;
+    uint8_t clearBusy:1;
+    uint8_t rsv0:1;
+    uint8_t portMultiplier:4;
+
+    uint16_t prdtLength;
+    uint32_t prdbCount;
+    uint32_t commandTableBaseAddress;
+    uint32_t commandTableBaseAddressUpper;
+    uint32_t rsv1[4];
+} HBACommandHeader;
+
+typedef struct {
+    HBAPort* hbaPort;
+    enum AHCI_PortType portType;
+    uint8_t* buffer;
+    uint8_t portNumber;
+} AHCI_Port;
+
+void AHCI_Port_Configure(AHCI_Port* self);
+void AHCI_Port_StartCMD(AHCI_Port* self);
+void AHCI_Port_StopCMD(AHCI_Port* self);
+
+typedef struct {
     PCIDeviceHeader* pciBaseAddress;
     HBAMemory* abar;
+    AHCI_Port* ports[32];
+    uint8_t portCount;
 } AHCIDriver;
 
 AHCIDriver AHCI_AHCIDriver(PCIDeviceHeader* pciBaseAddress);
