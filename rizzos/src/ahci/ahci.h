@@ -3,6 +3,7 @@
 
 #include "../pci.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 enum AHCI_PortType {
     AHCI_PT_None = 0,
@@ -80,6 +81,7 @@ typedef struct {
 void AHCI_Port_Configure(AHCI_Port* self);
 void AHCI_Port_StartCMD(AHCI_Port* self);
 void AHCI_Port_StopCMD(AHCI_Port* self);
+bool AHCI_Port_Read(AHCI_Port* self, uint64_t sector, uint32_t sectorCount, void* buffer);
 
 typedef struct {
     PCIDeviceHeader* pciBaseAddress;
@@ -88,7 +90,7 @@ typedef struct {
     uint8_t portCount;
 } AHCIDriver;
 
-AHCIDriver AHCI_AHCIDriver(PCIDeviceHeader* pciBaseAddress);
+AHCIDriver* AHCI_AHCIDriver(PCIDeviceHeader* pciBaseAddress);
 void AHCI_AHCIDriver_ProbePorts(AHCIDriver* self);
 
 #endif

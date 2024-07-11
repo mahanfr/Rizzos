@@ -112,8 +112,8 @@ void MEM_HeapSegHdrCombineForward(HeapSegHdr* hshdr) {
     if (hshdr->next->next != NULL) {
         hshdr->next->next->last = hshdr;
     }
-    hshdr->next = hshdr->next->next;
     hshdr->lenght += hshdr->next->lenght + sizeof(HeapSegHdr);
+    hshdr->next = hshdr->next->next;
 }
 
 void MEM_HeapSegHdrCombineBackward(HeapSegHdr *hshdr) {
