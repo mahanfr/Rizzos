@@ -9,6 +9,7 @@
 #include "../memory/heap.h"
 #include "../memory.h"
 #include "fis.h"
+#include "../filesystems/fat.h"
 
 #define MAX_AHCI_PORTS 32
 #define HBA_PORT_DEV_PRESENT 0x3
@@ -66,10 +67,8 @@ AHCIDriver* AHCI_AHCIDriver(PCIDeviceHeader *pciBaseAddress) {
 
         print("printing the buffer!\n");
         AHCI_Port_Read(port, 0, 4, port->buffer);
-        for(int t = 0; t < 1024; t++) {
-            BG_PutChar(port->buffer[t]);
-        }
-        print("\n");
+        FAT16* fat16 = FAT_ParseFat16_12(port->buffer);
+        if (fat16 == 0) continue;
     }
 
     return ahci_driver;
