@@ -69,6 +69,18 @@ AHCIDriver* AHCI_AHCIDriver(PCIDeviceHeader *pciBaseAddress) {
         AHCI_Port_Read(port, 0, 4, port->buffer);
         FAT16* fat16 = FAT_ParseFat16_12(port->buffer);
         if (fat16 == 0) continue;
+        uint32_t total_sectors = fat16->bpb.numLogicalSectors;
+        uint32_t fat_size = fat16->bpb.numSectorsPerFat;
+        uint32_t root_dir_sectors = 
+            ((fat16->bpb.numRootDirEntries * 32) + (fat16->bpb.numBytesPerSector - 1))
+            / fat16->bpb.numBytesPerSector;
+        uint32_t first_data_sector = fat16->bpb.numReservedSectors + (fat16->bpb.numFileAlocationTables * fat_size) + root_dir_sectors;
+        uint32_t first_root_dir_sector = first_data_sector - root_dir_sectors;
+        print("first root dir sector: %d\n", first_root_dir_sector);
+        AHCI_Port_Read(port, first_root_dir_sector , 4, port->buffer);
+        for (int t =0; t < 1024; t++) {
+            print("%X ",port->buffer[t]);
+        } 
     }
 
     return ahci_driver;
